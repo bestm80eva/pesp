@@ -7,8 +7,7 @@ unit PseElfFile;
 interface
 
 uses
-  SysUtils, Classes, PseFile, PseElf,
-  PseSection, PseCmn;
+  SysUtils, Classes, PseFile, PseElf, PseSection, PseCmn;
 
 type
   {

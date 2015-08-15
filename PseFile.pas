@@ -7,8 +7,8 @@ unit PseFile;
 interface
 
 uses
-	SysUtils, Classes, PseSection, PseExportTable,
-  PseImportTable, PseDebugInfo, PseCmn,
+	SysUtils, Classes, PseSection, PseExportTable, PseImportTable, PseDebugInfo,
+  PseCmn,
 {$ifdef FPC}
   fgl
 {$else}

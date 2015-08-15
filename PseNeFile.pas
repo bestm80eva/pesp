@@ -7,14 +7,7 @@ unit PseNeFile;
 interface
 
 uses
-  SysUtils, Classes, PseFile, PseSection,
-  PseImportTable, PseCmn, PseMz,
-{$ifdef FPC}
-  fgl
-{$else}
-  Generics.Collections
-{$endif}
-  ;
+  SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz;
 
 const
 	NOAUTODATA     = $0000;
@@ -278,7 +271,7 @@ procedure TPseNeFile.ReadImports;
 var
 	i: integer;
   offset: Word;
-  offsets: {$ifdef FPC}TFPGList{$else}TList{$endif}<Word>;
+  offsets: TList;
   next_offset: Word;
   string_len: Byte;
   name: array[0..MAXBYTE-1] of AnsiChar;
@@ -287,7 +280,7 @@ var
 begin
 	FImports.Clear;
   FStream.Seek(FExeHeader.ModulReferenceTableFileOffset + FExeHeaderOffset, soFromBeginning);
-  offsets := {$ifdef FPC}TFPGList{$else}TList{$endif}<Word>.Create;
+  offsets := TList.Create;
   try
   	// Each entry contains an offset for the module-name string within the imported-
 		// names table; each entry is 2 bytes long.
@@ -295,7 +288,7 @@ begin
     	// Offset within Imported Names Table to referenced module name
       // string.
 			FStream.Read(offset, SizeOf(Word));
-      offsets.Add(offset);
+      offsets.Add(Pointer(offset));
     end;
 
 		for i := 0 to offsets.Count - 1 do begin
@@ -303,14 +296,14 @@ begin
       // by the executable file. Each entry is composed of a 1-byte field that
       // contains the length of the string, followed by any number of characters.
       // The strings are not null-terminated and are case sensitive.
-		  FStream.Seek(FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + offsets[i], soFromBeginning);
+		  FStream.Seek(FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i]), soFromBeginning);
 			FStream.Read(string_len, SizeOf(Byte));
       FillChar(name, MAXBYTE, 0);
       FStream.Read(name, string_len);
       import_obj := FImports.New;
       import_obj.DllName := string(StrPas(PAnsiChar(@name)));
       if i < offsets.Count - 1 then
-      	next_offset := FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + offsets[i+1]
+      	next_offset := FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i+1])
       else
 				next_offset := FExeHeader.EntryTableFileOffset + FExeHeaderOffset;
 
