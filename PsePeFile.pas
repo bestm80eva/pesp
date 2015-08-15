@@ -34,6 +34,8 @@ type
     procedure ReadMapFile;
     procedure ReadDebugDirectory;
     function RVAToOffset(const RVA: UInt64): UInt64;
+  protected
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -46,8 +48,6 @@ type
     function GetMaxStackSize: UInt64; override;
     function GetInitHeapSize: UInt64; override;
     function GetMaxHeapSize: UInt64; override;
-
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
 
     function GetImageBase: UInt64;
     function GetSizeOfImage: Cardinal;
@@ -88,7 +88,7 @@ end;
 procedure TPsePeFile.SaveSectionToStream(const ASection: integer; Stream: TStream);
 var
   sec: TPseSection;
-	o, s: Int64;
+  o, s: Int64;
 begin
   sec := FSections[ASection];
   o := RVAToOffset(sec.Address);
@@ -134,15 +134,15 @@ begin
     ReadImports;
     ReadDelayImports;
     if FReadDebugInfo then begin
-	    ReadDebugDirectory;
-	    ReadMapFile;
+      ReadDebugDirectory;
+      ReadMapFile;
     end;
   end;
 end;
 
 procedure TPsePeFile.ReadDebugDirectory;
 var
-	debug_rva, offset: UInt64;
+  debug_rva, offset: UInt64;
   debug_dir: TImageDebugDirectory;
   ansi_name: array[0..260] of AnsiChar;
   wide_name: array[0..260] of WideChar;
@@ -163,33 +163,33 @@ begin
 
   case debug_dir._Type of
     IMAGE_DEBUG_TYPE_UNKNOWN:
-    	Exit;
+      Exit;
     IMAGE_DEBUG_TYPE_COFF:
-    	begin
-				// http://waleedassar.blogspot.co.at/search/label/IMAGE_DEBUG_TYPE_COFF
-			  offset := debug_dir.PointerToRawData;
-			  FStream.Seek(offset, soFromBeginning);
+      begin
+        // http://waleedassar.blogspot.co.at/search/label/IMAGE_DEBUG_TYPE_COFF
+        offset := debug_dir.PointerToRawData;
+        FStream.Seek(offset, soFromBeginning);
         FStream.Read(coff_header, SizeOf(TImageCOFFSymbolsHeader));
       end;
     IMAGE_DEBUG_TYPE_CODEVIEW:
-    	begin
+      begin
       end;
     IMAGE_DEBUG_TYPE_FPO: ;
     IMAGE_DEBUG_TYPE_MISC:
-    	begin
-			  offset := debug_dir.PointerToRawData;
-			  FStream.Seek(offset, soFromBeginning);
+      begin
+        offset := debug_dir.PointerToRawData;
+        FStream.Seek(offset, soFromBeginning);
         FStream.Read(debug_misc, SizeOf(TImageDebugMisc));
-			  FStream.Seek(offset + SizeOf(TImageDebugMisc) - 1, soFromBeginning);
+        FStream.Seek(offset + SizeOf(TImageDebugMisc) - 1, soFromBeginning);
         if debug_misc.Unicode then begin
-	        FStream.Read(wide_name, debug_misc.Length);
+          FStream.Read(wide_name, debug_misc.Length);
         end else begin
-	        FStream.Read(ansi_name, debug_misc.Length);
+          FStream.Read(ansi_name, debug_misc.Length);
         end;
       end;
     IMAGE_DEBUG_TYPE_EXCEPTION: ;
   else
-  	Exit;
+    Exit;
   end;
 
 //  offset := debug_dir.PointerToRawData;
@@ -199,14 +199,14 @@ end;
 
 procedure TPsePeFile.ReadMapFile;
 var
-	fn: string;
+  fn: string;
   reader: TPseMapFileReader;
   dii: TDebugInfoItem;
 begin
-	if FFileName <> '' then begin
+  if FFileName <> '' then begin
     fn := ChangeFileExt(FFileName, '.map');
     if FileExists(fn) then begin
-			reader := TPseMapFileReader.Create(fn);
+      reader := TPseMapFileReader.Create(fn);
       try
         while reader.GetNext(dii) do begin
           FDebugInfo.Add(dii);
@@ -239,17 +239,17 @@ begin
     secname := StrPas(PAnsiChar(@sech.Name));
     sec.Name := {$ifdef FPC}UTF8Decode{$else}UTF8ToString{$endif}(secname);
     if (sech.Characteristics and IMAGE_SCN_CNT_CODE) = IMAGE_SCN_CNT_CODE then
-    	Include(attribs, saCode);
+      Include(attribs, saCode);
     if (sech.Characteristics and IMAGE_SCN_CNT_INITIALIZED_DATA) = IMAGE_SCN_CNT_INITIALIZED_DATA then
-    	Include(attribs, saInitializedData);
+      Include(attribs, saInitializedData);
     if (sech.Characteristics and IMAGE_SCN_CNT_UNINITIALIZED_DATA) = IMAGE_SCN_CNT_UNINITIALIZED_DATA then
-    	Include(attribs, saData);
+      Include(attribs, saData);
     if (sech.Characteristics and IMAGE_SCN_MEM_EXECUTE) = IMAGE_SCN_MEM_EXECUTE then
-    	Include(attribs, saExecuteable);
+      Include(attribs, saExecuteable);
     if (sech.Characteristics and IMAGE_SCN_MEM_READ) = IMAGE_SCN_MEM_READ then
-    	Include(attribs, saReadable);
+      Include(attribs, saReadable);
     if (sech.Characteristics and IMAGE_SCN_MEM_WRITE) = IMAGE_SCN_MEM_WRITE then
-    	Include(attribs, saWriteable);
+      Include(attribs, saWriteable);
 
     sec.Attribs := attribs;
   end;
@@ -367,12 +367,12 @@ begin
       AddToImpo(did);
       if (FStream.Read(did, SizeOf(TImgDelayDescr)) <> SizeOf(TImgDelayDescr)) then
         Break;
-		end;
+    end;
 
     for i := 0 to impo_list.Count - 1 do begin
       offset := RVAToOffset(PImgDelayDescr(impo_list[i])^.rvaDLLName);
       if offset = 0 then
-      	Continue;
+        Continue;
 
       import_obj := FImports.New;
       import_obj.DelayLoad := true;
@@ -401,7 +401,7 @@ begin
           FStream.Position := stream_pos;
           FStream.Read(thunk64, SizeOf(TImageThunkData64));
         end;
-			end else begin
+      end else begin
         FStream.Read(thunk32, SizeOf(TImageThunkData32));
         while thunk32._Function <> 0 do begin
           imp_api := import_obj.New;
@@ -426,7 +426,7 @@ begin
     for i := 0 to impo_list.Count - 1 do begin
       pimpo := PImgDelayDescr(impo_list[i]);
       Dispose(pimpo);
-		end;
+    end;
     impo_list.Free
   end;
 end;
@@ -539,8 +539,8 @@ begin
     for i := 0 to impo_list.Count - 1 do begin
       pimpo := PImageImportDescriptor(impo_list[i]);
       Dispose(pimpo);
-		end;
-		impo_list.Free;
+    end;
+    impo_list.Free;
   end;
 end;
 

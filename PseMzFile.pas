@@ -11,14 +11,16 @@ uses
   PseExportTable, PseImportTable, PseCmn, PseMz;
 
 type
-	TExeHeader = record
-		Signature: Word;
+  TExeHeader = record
+    Signature: Word;
   end;
 
   // http://www.delorie.com/djgpp/doc/exe/
-	TPseMzFile = class(TPseFile)
+  TPseMzFile = class(TPseFile)
   private
     FExeHeader: TExeHeader;
+  protected
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     function LoadFromStream(Stream: TStream): boolean; override;
     function GetFriendlyName: string; override;
@@ -27,14 +29,12 @@ type
 
     function GetEntryPoint: UInt64; override;
     function GetFirstAddr: UInt64; override;
-
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
-	end;
+  end;
 
 implementation
 
 uses
-	Math;
+  Math;
 
 function TPseMzFile.LoadFromStream(Stream: TStream): boolean;
 begin
@@ -61,7 +61,7 @@ end;
 procedure TPseMzFile.SaveSectionToStream(const ASection: integer; Stream: TStream);
 var
   sec: TPseSection;
-	o, s: Int64;
+  o, s: Int64;
 begin
   sec := FSections[ASection];
   o := sec.Address;

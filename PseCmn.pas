@@ -7,9 +7,9 @@ const
   MAXWORD = 65535;
 
 type
-	TPseBitness = (psebUnknown, pseb16, pseb32, pseb64);
+  TPseBitness = (psebUnknown, pseb16, pseb32, pseb64);
 
-	TPseArch = (
+  TPseArch = (
     pseaARM,
     pseaARM64,
     pseaMIPS,
@@ -39,7 +39,7 @@ type
   );
 
 const
-	BITNESS_STRING: array[TPseBitness] of string = ('Unknown', '16', '32', '64');
+  BITNESS_STRING: array[TPseBitness] of string = ('Unknown', '16', '32', '64');
 
 implementation
 

@@ -7,25 +7,25 @@ unit PseFile;
 interface
 
 uses
-	SysUtils, Classes, PseSection, PseExportTable, PseImportTable, PseDebugInfo,
+  SysUtils, Classes, PseSection, PseExportTable, PseImportTable, PseDebugInfo,
   PseCmn,
 {$ifdef FPC}
   fgl
 {$else}
   Generics.Collections
 {$endif}
-	;
+  ;
 
 
 type
-	TPseFileClass = class of TPseFile;
+  TPseFileClass = class of TPseFile;
   {
     Base class
   }
-	TPseFile = class(TPersistent)
+  TPseFile = class(TPersistent)
   private
-	protected
-  	FStream: TStream;
+  protected
+    FStream: TStream;
     FFilename: string;
     FSections: TPseSectionList;
     FExports: TPseExportTable;
@@ -35,14 +35,15 @@ type
     FReadDebugInfo: boolean;
     function GetHasDebugInfo: boolean;
     function GetIs64: boolean;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); virtual; abstract;
   public
-  	constructor Create; virtual;
+    constructor Create; virtual;
     destructor Destroy; override;
-  	function LoadFromFile(const AFilename: string): boolean; virtual;
-  	function LoadFromStream(Stream: TStream): boolean; virtual;
+    function LoadFromFile(const AFilename: string): boolean; virtual;
+    function LoadFromStream(Stream: TStream): boolean; virtual;
     function GetEntryPoint: UInt64; virtual; abstract;
     function GetArch: TPseArch; virtual; abstract;
-		function GetMode: TPseMode; virtual; abstract;
+    function GetMode: TPseMode; virtual; abstract;
     function GetFirstAddr: UInt64; virtual; abstract;
     function GetInitStackSize: UInt64; virtual;
     function GetMaxStackSize: UInt64; virtual;
@@ -50,8 +51,6 @@ type
     function GetMaxHeapSize: UInt64; virtual;
 
     function GetFriendlyName: string; virtual;
-
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); virtual; abstract;
 
     property Filename: string read FFilename;
     property Sections: TPseSectionList read FSections;
@@ -72,7 +71,7 @@ type
 implementation
 
 uses
-	PseRawFile;
+  PseRawFile;
 
 type
 {$ifdef FPC}
@@ -82,15 +81,15 @@ type
 {$endif}
 
 var
-	gPseFiles: TPseFilesList;
+  gPseFiles: TPseFilesList;
 
 class procedure TPseFile.RegisterFile(AClass: TPseFileClass; const AIndex: integer = -1);
 begin
-	if gPseFiles = nil then
-		gPseFiles := TPseFilesList.Create;
+  if gPseFiles = nil then
+    gPseFiles := TPseFilesList.Create;
   if gPseFiles.IndexOf(AClass) = -1 then begin
-  	if AIndex = -1 then
-	    gPseFiles.Add(AClass)
+    if AIndex = -1 then
+      gPseFiles.Add(AClass)
     else
       gPseFiles.Insert(AIndex, AClass);
   end;
@@ -98,10 +97,10 @@ end;
 
 class function TPseFile.GetInstance(const AFilename: string; const AWidthDebugInfo: boolean): TPseFile;
 var
-	i: integer;
+  i: integer;
   cls: TPseFileClass;
 begin
-	Result := nil;
+  Result := nil;
   if gPseFiles <> nil then begin
     for i := 0 to gPseFiles.Count - 1 do begin
       cls := gPseFiles[i];
@@ -123,10 +122,10 @@ end;
 
 class function TPseFile.GetInstance(Stream: TStream; const AWidthDebugInfo: boolean): TPseFile;
 var
-	i: integer;
+  i: integer;
   cls: TPseFileClass;
 begin
-	Result := nil;
+  Result := nil;
   if gPseFiles <> nil then begin
     for i := 0 to gPseFiles.Count - 1 do begin
       cls := gPseFiles[i];
@@ -149,7 +148,7 @@ end;
 constructor TPseFile.Create;
 begin
   inherited;
-	FStream := TMemoryStream.Create;
+  FStream := TMemoryStream.Create;
   FSections := TPseSectionList.Create(Self);
   FExports := TPseExportTable.Create;
   FImports := TPseImportTable.Create(Self);
@@ -159,11 +158,11 @@ end;
 
 destructor TPseFile.Destroy;
 begin
-	FDebugInfo.Free;
-	FSections.Free;
+  FDebugInfo.Free;
+  FSections.Free;
   FExports.Free;
   FImports.Free;
- 	FStream.Free;
+   FStream.Free;
   inherited;
 end;
 
@@ -174,7 +173,7 @@ end;
 
 function TPseFile.GetInitStackSize: UInt64;
 begin
-	Result := 4096;
+  Result := 4096;
 end;
 
 function TPseFile.GetMaxStackSize: UInt64;
@@ -184,7 +183,7 @@ end;
 
 function TPseFile.GetInitHeapSize: UInt64;
 begin
-	Result := 4096;
+  Result := 4096;
 end;
 
 function TPseFile.GetMaxHeapSize: UInt64;
@@ -199,10 +198,10 @@ end;
 
 function TPseFile.LoadFromFile(const AFilename: string): boolean;
 var
-	fs: TFileStream;
+  fs: TFileStream;
 begin
-	try
-	  fs := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
+  try
+    fs := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
     try
       FFilename := AFilename;
       Result := LoadFromStream(fs);
@@ -210,19 +209,19 @@ begin
       fs.Free;
     end;
   except
-		Result := false;
+    Result := false;
   end;
 end;
 
 function TPseFile.LoadFromStream(Stream: TStream): boolean;
 begin
-	try
+  try
     TMemoryStream(FStream).Clear;
     Stream.Position := 0;
     FStream.CopyFrom(Stream, Stream.Size);
     Result := true;
   except
-		Result := false;
+    Result := false;
   end;
 end;
 

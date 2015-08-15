@@ -49,7 +49,7 @@ type
     FDelayLoad: boolean;
     FOwner: TPseImportTable;
   public
-  	constructor Create(Owner: TPseImportTable);
+    constructor Create(Owner: TPseImportTable);
     destructor Destroy; override;
     procedure Clear;
     function New: TPseApi;
@@ -60,9 +60,9 @@ type
 
   TPseImportTable = class(TImportList)
   private
-  	FOwner: TObject;
+    FOwner: TObject;
   public
-  	constructor Create(Owner: TObject);
+    constructor Create(Owner: TObject);
     destructor Destroy; override;
     procedure Clear;
     function New: TPseImport;
@@ -72,7 +72,7 @@ type
 implementation
 
 uses
-	PseFile;
+  PseFile;
 
 constructor TPseApi.Create(AOwner: TPseImport);
 begin
@@ -91,12 +91,12 @@ constructor TPseImport.Create(Owner: TPseImportTable);
 begin
   inherited Create;
   FOwner := Owner;
- 	FHandle := 0;
+   FHandle := 0;
 end;
 
 destructor TPseImport.Destroy;
 begin
-	Clear;
+  Clear;
   inherited;
 end;
 

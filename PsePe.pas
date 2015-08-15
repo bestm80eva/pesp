@@ -388,11 +388,11 @@ type
   TImageCOFFSymbolsHeader = _IMAGE_COFF_SYMBOLS_HEADER;
   IMAGE_COFF_SYMBOLS_HEADER = _IMAGE_COFF_SYMBOLS_HEADER;
 
-	FarProc = Pointer;
-	RVA = Cardinal;
+  FarProc = Pointer;
+  RVA = Cardinal;
 
   TImgDelayDescr = record
-  	grAttrs: Cardinal;         // attributes
+    grAttrs: Cardinal;         // attributes
     rvaDLLName: RVA;           // RVA to dll name
     rvaHMod: RVA;              // RVA of module handle
     rvaIAT: RVA;               // RVA of the IAT
@@ -406,14 +406,14 @@ type
 
   // Delay Load Attributes
   DLAttr = (
-  	dlattrRva = $1             // RVAs are used instead of pointers
+    dlattrRva = $1             // RVAs are used instead of pointers
                                // Having this set indicates a VC7.0
                                // and above delay load descriptor.
   );
 
-	// Delay load import hook notifications
+  // Delay load import hook notifications
   DLIMportHookNotification = (
-  	dliStartProcessing,
+    dliStartProcessing,
     dliNoteStartProcessing = dliStartProcessing,
     dliNotePreLoadLibrary,
     dliNotePreGetProcAddress,
@@ -423,15 +423,15 @@ type
   );
 
   _DelayLoadProc = record
-  	fImportByName: LongBool;
+    fImportByName: LongBool;
     case Byte of
-    	0: (szProcName: PChar);
+      0: (szProcName: PChar);
       1: (dwOrdinal: Cardinal);
   end;
   TDelayLoadProc = _DelayLoadProc;
 
   _DelayLoadInfo = record
-  	cd: Cardinal;              // size of structure
+    cd: Cardinal;              // size of structure
     pidd: PImgDelayDescr;      // raw form of data (everything is there)
     ppfn: FarProc;             // points to address of function to load
     szDll: PChar;              // name of dll

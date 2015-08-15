@@ -7,19 +7,19 @@ unit PseObjFile;
 interface
 
 uses
-	SysUtils, Classes, PseFile;
+  SysUtils, Classes, PseFile;
 
 type
-	{
-  	COFF OBJ files.
+  {
+    COFF OBJ files.
   }
-	TPseObjFile = class(TPseFile)
+  TPseObjFile = class(TPseFile)
 
   end;
 
 implementation
 
 initialization
-//	TSadFile.RegisterFile(TObjFile, 2);
+//  TSadFile.RegisterFile(TObjFile, 2);
 
 end.

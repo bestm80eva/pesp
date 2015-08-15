@@ -10,7 +10,7 @@ uses
   SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz;
 
 const
-	NOAUTODATA     = $0000;
+  NOAUTODATA     = $0000;
   SINGLEDATA     = $0001;
   MULTIPLEDATA   = $0002;
   ERRORS         = $2000;
@@ -24,7 +24,7 @@ const
   EXETYPE_BOSS    = $5;
 
   SEGMENTGLAG_TYPE_MASK = $0007;
-	SEGMENTGLAG_CODE      = $0000;
+  SEGMENTGLAG_CODE      = $0000;
   SEGMENTGLAG_DATA      = $0001;
   SEGMENTGLAG_MOVEABLE  = $0010;
   SEGMENTGLAG_PRELOAD   = $0040;
@@ -32,12 +32,12 @@ const
   SEGMENTGLAG_DISCARD   = $F000;
 
   RESTABLEFLAG_MOVEABLE = $0010;
-	RESTABLEFLAG_PURE     = $0020;
+  RESTABLEFLAG_PURE     = $0020;
   RESTABLEFLAG_PRELOAD  = $0040;
 
 type
-	_SEGMENTED_EXE_HEADER = record
-		Signature: Word;
+  _SEGMENTED_EXE_HEADER = record
+    Signature: Word;
     MajorLinkerVersion: Byte;
     MinorLinkerVersion: Byte;
     EntryTableFileOffset: Word;
@@ -71,7 +71,7 @@ type
   TSegmentedExeHeader = _SEGMENTED_EXE_HEADER;
 
   _EXE_SEGMENTHEADER = record
-  	Offset: Word;
+    Offset: Word;
     Size: Word;
     Flags: Word;
     MinAllocSize: Word;
@@ -79,24 +79,24 @@ type
   TExeSegmentHeader = _EXE_SEGMENTHEADER;
 
   _RESIDENT_NAME_TABLE_ENTRY = record
-  	Size: Byte;
+    Size: Byte;
     Name: Byte;
     Ordinal: Word;
   end;
   TResidentNameTableEntry = _RESIDENT_NAME_TABLE_ENTRY;
 
   _IMPORTED_NAME_TABLE_ENTRY = record
-  	Size: Byte;
+    Size: Byte;
     Name: Byte;
   end;
   TImportedNameTableEntry = _IMPORTED_NAME_TABLE_ENTRY;
 
   _RESOURCE_BLOCK = record
-  	TypeId: Word;
+    TypeId: Word;
     Count: Word;
     Reserved: Cardinal;
     Table: record
-    	FileOffset: Word;
+      FileOffset: Word;
       Length: Word;
       Flag: Word;
       ResourceId: Word;
@@ -106,7 +106,7 @@ type
   TResourceBlock = _RESOURCE_BLOCK;
 
   _RESOURCE_TABLE_ENTRY = record
-  	AlignShift: Word;
+    AlignShift: Word;
     Block: TResourceBlock;
     SizeOfTypeName: Byte;
     Text: Byte;
@@ -129,7 +129,7 @@ type
 
     <http://www.fileformat.info/format/exe/corion-ne.htm>
   }
-	TPseNeFile = class(TPseFile)
+  TPseNeFile = class(TPseFile)
   private
     FDosHeader: TImageDosHeader;
     FExeHeader: TSegmentedExeHeader;
@@ -138,7 +138,9 @@ type
     procedure ReadImports;
     procedure ReadExports;
     procedure ReadResources;
-	public
+  protected
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
+  public
     function LoadFromStream(Stream: TStream): boolean; override;
     function GetFriendlyName: string; override;
     function GetArch: TPseArch; override;
@@ -146,8 +148,6 @@ type
 
     function GetEntryPoint: UInt64; override;
     function GetFirstAddr: UInt64; override;
-
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
 
     property DosHeader: TImageDosHeader read FDosHeader;
     property ExeHeader: TSegmentedExeHeader read FExeHeader;
@@ -160,7 +160,7 @@ function GetSecCharacteristicsString(const AFlags: Word): string;
 implementation
 
 uses
-	Math;
+  Math;
 
 const
   DOS_HEADER_MZ = ((Ord('Z') shl 8) + Ord('M'));
@@ -168,18 +168,18 @@ const
 
 function GetSecCharacteristicsString(const AFlags: Word): string;
 begin
-	Result := '';
-	if (AFlags and SEGMENTGLAG_CODE) = SEGMENTGLAG_CODE then
+  Result := '';
+  if (AFlags and SEGMENTGLAG_CODE) = SEGMENTGLAG_CODE then
     Result := Result + 'CODE | ';
-	if (AFlags and SEGMENTGLAG_DATA) = SEGMENTGLAG_DATA then
+  if (AFlags and SEGMENTGLAG_DATA) = SEGMENTGLAG_DATA then
     Result := Result + 'DATA | ';
-	if (AFlags and SEGMENTGLAG_MOVEABLE) = SEGMENTGLAG_MOVEABLE then
+  if (AFlags and SEGMENTGLAG_MOVEABLE) = SEGMENTGLAG_MOVEABLE then
     Result := Result + 'MOVEABLE | ';
-	if (AFlags and SEGMENTGLAG_PRELOAD) = SEGMENTGLAG_PRELOAD then
+  if (AFlags and SEGMENTGLAG_PRELOAD) = SEGMENTGLAG_PRELOAD then
     Result := Result + 'PRELOAD | ';
-	if (AFlags and SEGMENTGLAG_RELOCINFO) = SEGMENTGLAG_RELOCINFO then
+  if (AFlags and SEGMENTGLAG_RELOCINFO) = SEGMENTGLAG_RELOCINFO then
     Result := Result + 'RELOCINFO | ';
-	if (AFlags and SEGMENTGLAG_DISCARD) = SEGMENTGLAG_DISCARD then
+  if (AFlags and SEGMENTGLAG_DISCARD) = SEGMENTGLAG_DISCARD then
     Result := Result + 'DISCARD | ';
 
   if Result <> '' then
@@ -188,16 +188,16 @@ end;
 
 function GetFlagsString(const AFlags: Word): string;
 begin
-	Result := '';
-	if (AFlags and NOAUTODATA) = NOAUTODATA then
+  Result := '';
+  if (AFlags and NOAUTODATA) = NOAUTODATA then
     Result := Result + 'NOAUTODATA | ';
-	if (AFlags and SINGLEDATA) = SINGLEDATA then
+  if (AFlags and SINGLEDATA) = SINGLEDATA then
     Result := Result + 'SINGLEDATA | ';
-	if (AFlags and MULTIPLEDATA) = MULTIPLEDATA then
+  if (AFlags and MULTIPLEDATA) = MULTIPLEDATA then
     Result := Result + 'MULTIPLEDATA | ';
-	if (AFlags and ERRORS) = ERRORS then
+  if (AFlags and ERRORS) = ERRORS then
     Result := Result + 'ERRORS | ';
-	if (AFlags and LIBRARY_MODULE) = LIBRARY_MODULE then
+  if (AFlags and LIBRARY_MODULE) = LIBRARY_MODULE then
     Result := Result + 'LIBRARY_MODULE | ';
 
   if Result <> '' then
@@ -207,14 +207,14 @@ end;
 function GetExeTypeString(const AType: Byte): string;
 begin
   case AType of
-  	EXETYPE_UNKNOWN: Result := 'Unknown';
+    EXETYPE_UNKNOWN: Result := 'Unknown';
     EXETYPE_OS2: Result := 'OS/2';
     EXETYPE_WINDOWS: Result := 'Windows';
     EXETYPE_DOS40: Result := 'MS-DOS 4.0';
     EXETYPE_WIN386: Result := 'Windows 386';
     EXETYPE_BOSS: Result := 'BOSS';
   else
-  	Result := 'Unknown';
+    Result := 'Unknown';
   end;
 end;
 
@@ -235,7 +235,7 @@ begin
     if (FStream.Read(FExeHeader, SizeOf(TSegmentedExeHeader)) <> SizeOf(TSegmentedExeHeader)) then
       Exit(false);
     if FExeHeader.Signature <> EXE_HEADER_NE then
-    	Exit(false);
+      Exit(false);
 
     FBitness := pseb16;
 
@@ -243,13 +243,13 @@ begin
     ReadResources;
     ReadExports;
     ReadImports;
-		Result := true;
+    Result := true;
   end;
 end;
 
 procedure TPseNeFile.ReadResources;
 var
-	entry: TResourceTableEntry;
+  entry: TResourceTableEntry;
 begin
   // RESOURCE TABLE
   FStream.Seek(FExeHeader.ResourceTableFileOffset + FExeHeaderOffset, soFromBeginning);
@@ -271,7 +271,7 @@ end;
 
 procedure TPseNeFile.ReadImports;
 var
-	i: integer;
+  i: integer;
   offset: Word;
   offsets: TList;
   next_offset: Word;
@@ -280,41 +280,41 @@ var
   import_obj: TPseImport;
   imp_api: TPseApi;
 begin
-	FImports.Clear;
+  FImports.Clear;
   FStream.Seek(FExeHeader.ModulReferenceTableFileOffset + FExeHeaderOffset, soFromBeginning);
   offsets := TList.Create;
   try
-  	// Each entry contains an offset for the module-name string within the imported-
-		// names table; each entry is 2 bytes long.
+    // Each entry contains an offset for the module-name string within the imported-
+    // names table; each entry is 2 bytes long.
     for i := 0 to FExeHeader.ModuleReferenceNumberEntries - 1 do begin
-    	// Offset within Imported Names Table to referenced module name
+      // Offset within Imported Names Table to referenced module name
       // string.
-			FStream.Read(offset, SizeOf(Word));
+      FStream.Read(offset, SizeOf(Word));
       offsets.Add(Pointer(offset));
     end;
 
-		for i := 0 to offsets.Count - 1 do begin
-    	// This table contains the names of modules and procedures that are imported
+    for i := 0 to offsets.Count - 1 do begin
+      // This table contains the names of modules and procedures that are imported
       // by the executable file. Each entry is composed of a 1-byte field that
       // contains the length of the string, followed by any number of characters.
       // The strings are not null-terminated and are case sensitive.
-		  FStream.Seek(FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i]), soFromBeginning);
-			FStream.Read(string_len, SizeOf(Byte));
+      FStream.Seek(FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i]), soFromBeginning);
+      FStream.Read(string_len, SizeOf(Byte));
       FillChar(name, MAXBYTE, 0);
       FStream.Read(name, string_len);
       import_obj := FImports.New;
       import_obj.DllName := string(StrPas(PAnsiChar(@name)));
       if i < offsets.Count - 1 then
-      	next_offset := FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i+1])
+        next_offset := FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i+1])
       else
-				next_offset := FExeHeader.EntryTableFileOffset + FExeHeaderOffset;
+        next_offset := FExeHeader.EntryTableFileOffset + FExeHeaderOffset;
 
       while FStream.Position < next_offset do begin
         FStream.Read(string_len, SizeOf(Byte));
         FillChar(name, MAXBYTE, 0);
         FStream.Read(name, string_len);
         imp_api := import_obj.New;
-	      imp_api.Name := string(StrPas(PAnsiChar(@name)));
+        imp_api.Name := string(StrPas(PAnsiChar(@name)));
       end;
 
     end;
@@ -325,25 +325,25 @@ end;
 
 procedure TPseNeFile.ReadSections;
 var
-	i: integer;
+  i: integer;
   seg_header: TExeSegmentHeader;
   sec: TPseSection;
   attribs: TSectionAttribs;
 begin
   FSections.Clear;
   FStream.Seek(FExeHeader.SegmentTableFileOffset + FExeHeaderOffset, soFromBeginning);
-	for i := 0 to FExeHeader.SegmentNumber - 1 do begin
+  for i := 0 to FExeHeader.SegmentNumber - 1 do begin
     if (FStream.Read(seg_header, SizeOf(TExeSegmentHeader)) <> SizeOf(TExeSegmentHeader)) then
       Break;
     attribs := [];
-		sec := FSections.New;
+    sec := FSections.New;
     sec.Name := Format('Segment %d', [i+1]);
     sec.Address := seg_header.Offset;
     sec.FileOffset := seg_header.Offset;
     if seg_header.Size <> 0 then
-	    sec.Size := seg_header.Size
+      sec.Size := seg_header.Size
     else
-    	sec.Size := 64 * 1024;                                                    // Zero means 64K.
+      sec.Size := 64 * 1024;                                                    // Zero means 64K.
     sec.OrigAttribs := seg_header.Flags;
 
     if (seg_header.Flags and SEGMENTGLAG_CODE) = SEGMENTGLAG_CODE then begin
@@ -353,9 +353,9 @@ begin
     if (seg_header.Flags and SEGMENTGLAG_DATA) = SEGMENTGLAG_DATA then begin
       Include(attribs, saData);
       if (seg_header.Flags and SEGMENTGLAG_PRELOAD) = SEGMENTGLAG_PRELOAD then
-	      Include(attribs, saReadable);
+        Include(attribs, saReadable);
     end;
-		sec.Attribs := attribs;
+    sec.Attribs := attribs;
   end;
 end;
 
@@ -372,7 +372,7 @@ end;
 procedure TPseNeFile.SaveSectionToStream(const ASection: integer; Stream: TStream);
 var
   sec: TPseSection;
-	o, s: Int64;
+  o, s: Int64;
 begin
   sec := FSections[ASection];
   o := sec.Address;

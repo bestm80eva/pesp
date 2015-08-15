@@ -28,14 +28,14 @@ uses
 
 var
   filename: string;
-	PseFile: TPseFile;
+  PseFile: TPseFile;
   i, j: integer;
   sec: TPseSection;
   imp: TPseImport;
   api: TPseApi;
   expo: TPseExport;
 begin
-	// Register files we need
+  // Register files we need
   TPseFile.RegisterFile(TPsePeFile);
   TPseFile.RegisterFile(TPseElfFile);
   TPseFile.RegisterFile(TPseNeFile);
@@ -54,7 +54,7 @@ begin
 
   PseFile := TPseFile.GetInstance(filename, false);
   try
-  	WriteLn(PseFile.GetFriendlyName);
+    WriteLn(PseFile.GetFriendlyName);
     WriteLn(Format('Entry point 0x%x', [PseFile.GetEntryPoint]));
 
     WriteLn(Format('%d Sections', [PseFile.Sections.Count]));
@@ -68,8 +68,8 @@ begin
       imp := PseFile.ImportTable[i];
       WriteLn(Format('%s:', [imp.DllName]));
       for j := 0 to imp.Count - 1 do begin
-      	api := imp[j];
-		    WriteLn(Format('  %s: Hint %d, Address: 0x%x', [api.Name, api.Hint, api.Address]));
+        api := imp[j];
+        WriteLn(Format('  %s: Hint %d, Address: 0x%x', [api.Name, api.Hint, api.Address]));
       end;
     end;
 
@@ -82,7 +82,7 @@ begin
     if PseFile is TPsePeFile then begin
 
     end else if PseFile is TPseElfFile then begin
-		end;
+    end;
 
   finally
     PseFile.Free;

@@ -87,7 +87,7 @@ const
   // sh_flags
   SHF_WRITE     = $1;          // The section contains data that should be writable during process execution.
   SHF_ALLOC     = $2;          // The section occupies memory during process execution. Some control sections do
-															 // not reside in the memory image of an object file; this attribute is off for those sections.
+                               // not reside in the memory image of an object file; this attribute is off for those sections.
   SHF_EXECINSTR = $4;          // The section contains executable machine instructions.
   SHF_MASKPROC  = $f0000000;   // All bits included in this mask are reserved for processor-specific semantics.
 
@@ -129,9 +129,9 @@ type
     e_machine: Elf32_Half;                            // This member’s value specifies the required architecture for an individual file.
     e_version: Elf32_Word;
     e_entry: Elf64_Addr;                              // This member gives the virtual address to which the system first transfers control, thus
-																											// starting the process. If the file has no associated entry point, this member holds zero.
+                                                      // starting the process. If the file has no associated entry point, this member holds zero.
     e_phoff: Elf64_Off;                               // This member holds the program header table’s file offset in bytes. If the file has no
-																											// program header table, this member holds zero.
+                                                      // program header table, this member holds zero.
     e_shoff: Elf64_Off;
     e_flags: Elf32_Word;
     e_ehsize: Elf32_Half;
@@ -145,8 +145,8 @@ type
 
   TElf32SectionHeader = record
     sh_name: Elf32_Word;               // This member specifies the name of the section. Its value is an index into the section
-    																	 // header string table section [see ‘‘String Table’’ below], giving the location of a null-
-																			 // terminated string.
+                                       // header string table section [see ‘‘String Table’’ below], giving the location of a null-
+                                       // terminated string.
     sh_type: Elf32_Word;
     sh_flags: Elf32_Word;
     sh_addr: Elf32_Addr;
@@ -195,7 +195,7 @@ implementation
 
 function GetElfTypeString(const sh_type: Elf32_Word): string;
 begin
-	case sh_type of
+  case sh_type of
     SHT_NULL: Result := 'SHT_NULL';
     SHT_PROGBITS: Result := 'SHT_PROGBITS';
     SHT_SYMTAB: Result := 'SHT_SYMTAB';
@@ -214,31 +214,31 @@ begin
     SHT_LOUSER: Result := 'SHT_LOUSER';
     SHT_HIUSER: Result := 'SHT_HIUSER';
   else
-  	Result := 'Unknown';
+    Result := 'Unknown';
   end;
 end;
 
 function GetIdentHexString(const e_ident: array of Byte): string;
 var
-	i: integer;
+  i: integer;
 begin
-	Result := '';
+  Result := '';
   for i := 0 to EI_NIDENT - 1 do begin
     if e_ident[i] <> 0 then
-    	Result := Result + IntToHex(Integer(e_ident[i]), 2);
+      Result := Result + IntToHex(Integer(e_ident[i]), 2);
   end;
 end;
 
 function GetIdentString(const e_ident: array of Byte): string;
 var
-	i: integer;
+  i: integer;
 begin
-	Result := '';
+  Result := '';
   for i := 0 to EI_NIDENT - 1 do begin
     if e_ident[i] <> 0 then
-    	Result := Result + Char(e_ident[i])
+      Result := Result + Char(e_ident[i])
     else
-    	Break;
+      Break;
   end;
 end;
 
@@ -258,7 +258,7 @@ begin
     if Result <> '' then
       Delete(Result, Length(Result) - 2, MaxInt);
   end else
-  	Result := '0';
+    Result := '0';
 end;
 
 function GetTypeString(const e_type: Elf32_Half): string;

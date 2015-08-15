@@ -7,7 +7,7 @@ unit PseSection;
 interface
 
 uses
-	SysUtils, Classes,
+  SysUtils, Classes,
 {$ifdef FPC}
   fgl
 {$else}
@@ -16,27 +16,27 @@ uses
   ;
 
 type
-	TPseSection = class;
+  TPseSection = class;
 
   TPseSectionList = class({$ifdef FPC}TFPGList{$else}TList{$endif}<TPseSection>)
   private
-  	FOwner: TObject;
+    FOwner: TObject;
   public
-  	constructor Create(AOwner: TObject);
-  	destructor Destroy; override;
+    constructor Create(AOwner: TObject);
+    destructor Destroy; override;
     procedure Clear;
     function New: TPseSection;
   end;
 
   TSectionAttrib = (saCode, saExecuteable, saReadable, saWriteable, saData, saInitializedData,
-  	saStringTable, saSymbolTable, saNull);
+    saStringTable, saSymbolTable, saNull);
   TSectionAttribs = set of TSectionAttrib;
-	TPseSection = class
+  TPseSection = class
   private
-  	FOwner: TPseSectionList;
-  	FAddress: UInt64;
+    FOwner: TPseSectionList;
+    FAddress: UInt64;
     FPointerToRawData: UInt64;
-  	FSize: UInt64;
+    FSize: UInt64;
     FName: string;
     FOrigAttribs: Cardinal;
     FAttribs: TSectionAttribs;
@@ -45,9 +45,9 @@ type
     FNameIndex: Cardinal;
     FElfType: Cardinal;
   public
-  	constructor Create(AOwner: TPseSectionList);
+    constructor Create(AOwner: TPseSectionList);
     procedure SaveToFile(const AFilename: string);
-  	procedure SaveToStream(Stream: TStream);
+    procedure SaveToStream(Stream: TStream);
 
     property Address: UInt64 read FAddress write FAddress;
     property PointerToRawData: UInt64 read FPointerToRawData write FPointerToRawData;
@@ -65,13 +65,16 @@ type
 implementation
 
 uses
-	PseFile;
+  PseFile;
+
+type
+  TPseFileAccess = class(TPseFile);
 
 procedure TPseSectionList.Clear;
 var
-	i: integer;
+  i: integer;
 begin
-	for i := 0 to Count - 1 do
+  for i := 0 to Count - 1 do
     Items[i].Free;
   inherited;
 end;
@@ -103,20 +106,20 @@ end;
 
 procedure TPseSection.SaveToFile(const AFilename: string);
 var
-	fs: TFileStream;
+  fs: TFileStream;
 begin
-	fs := TFileStream.Create(AFilename, fmCreate);
+  fs := TFileStream.Create(AFilename, fmCreate);
   try
     SaveToStream(fs);
   finally
-		fs.Free;
+    fs.Free;
   end;
 end;
 
 procedure TPseSection.SaveToStream(Stream: TStream);
 begin
   if (FOwner.FOwner is TPseFile) then begin
-  	(FOwner.FOwner as TPseFile).SaveSectionToStream(FIndex, Stream);
+    (FOwner.FOwner as TPseFileAccess).SaveSectionToStream(FIndex, Stream);
   end;
 end;
 

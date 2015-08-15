@@ -7,7 +7,7 @@ unit PseDebugInfo;
 interface
 
 uses
-	SysUtils, Classes,
+  SysUtils, Classes,
   {$ifdef FPC}
     fgl
   {$else}
@@ -16,9 +16,9 @@ uses
   ;
 
 type
-	TDebugInfoItem = record
-  	Segment: Word;
-  	Offset: UInt64;
+  TDebugInfoItem = record
+    Segment: Word;
+    Offset: UInt64;
     FileName: string;
     LineNum: UInt64;
     Name: string;
@@ -28,13 +28,13 @@ type
   TDebugInfoDict = {$ifdef FPC}TFPGMap{$else}TDictionary{$endif}<UInt64, TDebugInfoItem>;
   TSegments =  {$ifdef FPC}TFPGMap{$else}TDictionary{$endif}<Word, TDebugInfoDict>;
 
-	TPseDebugInfo = class
+  TPseDebugInfo = class
   private
-  	FSegments: TSegments;
+    FSegments: TSegments;
     function GetSegmentDict(const ASeg: Word): TDebugInfoDict;
     function GetIsEmpty: boolean;
   public
-	  constructor Create;
+    constructor Create;
     destructor Destroy; override;
 
     procedure Add(ADi: TDebugInfoItem);
@@ -48,13 +48,13 @@ implementation
 constructor TPseDebugInfo.Create;
 begin
   inherited Create;
-	FSegments := TSegments.Create;
+  FSegments := TSegments.Create;
 end;
 
 destructor TPseDebugInfo.Destroy;
 begin
-	FSegments.Clear;
-	FSegments.Free;
+  FSegments.Clear;
+  FSegments.Free;
   inherited;
 end;
 
@@ -71,8 +71,8 @@ begin
   end;
 {$else}
   if FSegments.ContainsKey(ASeg) then begin
-  	if FSegments.TryGetValue(ASeg, Result) then
-	    Exit;
+    if FSegments.TryGetValue(ASeg, Result) then
+      Exit;
   end;
 {$endif}
   Result := TDebugInfoDict.Create;
@@ -86,19 +86,19 @@ end;
 
 procedure TPseDebugInfo.Add(ADi: TDebugInfoItem);
 var
-	dict: TDebugInfoDict;
+  dict: TDebugInfoDict;
 {$ifdef FPC}
   index: integer;
 {$endif}
 begin
-	dict := GetSegmentDict(ADi.Segment);
+  dict := GetSegmentDict(ADi.Segment);
 {$ifdef FPC}
   if (not FSegments.Find(ADi.Offset, index)) then begin
-	  dict.Add(ADi.Offset, ADi);
+    dict.Add(ADi.Offset, ADi);
   end;
 {$else}
-	if not dict.ContainsKey(ADi.Offset) then
-	  dict.Add(ADi.Offset, ADi);
+  if not dict.ContainsKey(ADi.Offset) then
+    dict.Add(ADi.Offset, ADi);
 {$endif}
 end;
 

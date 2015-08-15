@@ -7,25 +7,25 @@ unit PseLibFile;
 interface
 
 uses
-	SysUtils, Classes, PseFile;
+  SysUtils, Classes, PseFile;
 
 type
-	{
-  	COFF archive format: .lib, MinGW .a files.
+  {
+    COFF archive format: .lib, MinGW .a files.
     May (static lib file) or may not (dynamic lib file) the contents of one or
     more COFF OBJ files.
 
     References
-	    Micosoft. Microsoft Portable Executable and Common Object File Format
+      Micosoft. Microsoft Portable Executable and Common Object File Format
         Specification. Microsoft, February 2013.
   }
-	TLibFile = class(TPseFile)
+  TLibFile = class(TPseFile)
 
   end;
 
 implementation
 
 initialization
-//	TSadFile.RegisterFile(TLibFile, 2);
+//  TSadFile.RegisterFile(TLibFile, 2);
 
 end.

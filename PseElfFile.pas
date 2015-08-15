@@ -26,6 +26,8 @@ type
     procedure ReadSections;
     function ReadSectionString(const Index: integer): string;
     procedure UpdateSectionNames;
+  protected
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     constructor Create; override;
     destructor Destroy; override;
@@ -34,8 +36,6 @@ type
     function GetMode: TPseMode; override;
     function GetFirstAddr: UInt64; override;
     function GetEntryPoint: UInt64; override;
-
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
 
     function GetSizeOfImage: Cardinal;
 
@@ -79,9 +79,9 @@ begin
 
     // 32 or 64 Bit
     if FFileHeader32.e_ident[EI_CLASS] = ELFCLASS64 then
-    	FBitness := pseb64
+      FBitness := pseb64
     else
-    	FBitness := pseb32;
+      FBitness := pseb32;
     if Is64 then begin
       // Read 64 bit header, differs in size
       FStream.Position := 0;
@@ -301,15 +301,15 @@ begin
   Result := [];
   case GetMachine of
     EM_ARM, EM_AARCH64:
-	    Include(Result, psemARM);
+      Include(Result, psemARM);
     EM_386:
-	    Include(Result, psem32);
+      Include(Result, psem32);
     EM_X86_64:
-	    Include(Result, psem64);
+      Include(Result, psem64);
     EM_PPC:
-    	begin
+      begin
         if Is64 then
-			    Include(Result, psem64);
+          Include(Result, psem64);
       end;
   end;
   if IS64 then begin
