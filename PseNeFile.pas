@@ -237,6 +237,8 @@ begin
     if FExeHeader.Signature <> EXE_HEADER_NE then
     	Exit(false);
 
+    FBitness := pseb16;
+
     ReadSections;
     ReadResources;
     ReadExports;

@@ -105,7 +105,7 @@ procedure TPseSection.SaveToFile(const AFilename: string);
 var
 	fs: TFileStream;
 begin
-	fs := TfileStream.Create(AFilename, fmCreate);
+	fs := TFileStream.Create(AFilename, fmCreate);
   try
     SaveToStream(fs);
   finally
