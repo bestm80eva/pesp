@@ -1,6 +1,6 @@
 # Pascal Executable Parser
 
-A collection of classes and functions to prase executable files for the Pascal
+A collection of classes and functions to parse executable files for the Pascal
 language, namely for Free Pascal and Delphi.
 
 These are my findings trying to parse these files. Not everything is implemented yet
