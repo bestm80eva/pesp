@@ -132,6 +132,5 @@ For details see `pse.dpr`.
     Specification*. Microsoft, February 2013.
 - Micosoft. *Executeable-file Header Format*. Microsoft, February 1999.
     <ftp://ftp.microsoft.com/MISC1/DEVELOPR/WIN_DK/KB/Q65/1/22.TXT>
-- <http://www.nondot.org/sabre/os/files/Executables/EXE-3.1.txt>
 - <http://wiki.osdev.org/NE>
 - <http://www.fileformat.info/format/exe/corion-ne.htm>

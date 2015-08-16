@@ -39,6 +39,7 @@ begin
   TPseFile.RegisterFile(TPsePeFile);
   TPseFile.RegisterFile(TPseElfFile);
   TPseFile.RegisterFile(TPseNeFile);
+  TPseFile.RegisterFile(TPseMzFile);
   // If its not one of the above load it as raw file
   TPseFile.RegisterFile(TPseRawFile);
 
@@ -53,6 +54,10 @@ begin
   end;
 
   PseFile := TPseFile.GetInstance(filename, false);
+  if not Assigned(PseFile) then begin
+    WriteLn('Unsupported file');
+    Halt(1);
+  end;
   try
     WriteLn(PseFile.GetFriendlyName);
     WriteLn(Format('Entry point 0x%x', [PseFile.GetEntryPoint]));

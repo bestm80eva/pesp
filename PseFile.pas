@@ -1,3 +1,9 @@
+{
+  Pascal Executable Parser
+
+  by sa, 2014,2015
+}
+
 unit PseFile;
 
 {$IFDEF FPC}
@@ -81,7 +87,7 @@ type
 {$endif}
 
 var
-  gPseFiles: TPseFilesList;
+  gPseFiles: TPseFilesList = nil;
 
 class procedure TPseFile.RegisterFile(AClass: TPseFileClass; const AIndex: integer = -1);
 begin
@@ -162,7 +168,7 @@ begin
   FSections.Free;
   FExports.Free;
   FImports.Free;
-   FStream.Free;
+  FStream.Free;
   inherited;
 end;
 
@@ -233,6 +239,7 @@ end;
 initialization
 
 finalization
-  gPseFiles.Free;
+	if Assigned(gPseFiles) then
+	  gPseFiles.Free;
 
 end.

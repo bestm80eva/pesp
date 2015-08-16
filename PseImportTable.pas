@@ -1,3 +1,9 @@
+{
+  Pascal Executable Parser
+
+  by sa, 2014,2015
+}
+
 unit PseImportTable;
 
 {$IFDEF FPC}

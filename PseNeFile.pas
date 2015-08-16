@@ -1,3 +1,9 @@
+{
+  Pascal Executable Parser
+
+  by sa, 2014,2015
+}
+
 unit PseNeFile;
 
 {$IFDEF FPC}
@@ -163,7 +169,6 @@ uses
   Math;
 
 const
-  DOS_HEADER_MZ = ((Ord('Z') shl 8) + Ord('M'));
   EXE_HEADER_NE = ((Ord('E') shl 8) + Ord('N'));
 
 function GetSecCharacteristicsString(const AFlags: Word): string;
