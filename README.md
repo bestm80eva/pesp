@@ -1,7 +1,8 @@
 # Pascal Executable Parser
 
 A collection of classes and functions to parse executable files for the Pascal
-language, namely for Free Pascal and Delphi.
+language, namely for Free Pascal and Delphi. Everything is implemented in Pascal, 
+there are no external dependencies.
 
 These are my findings trying to parse these files. Not everything is implemented yet
 (e.g. Resource parsing), and I may be wrong here and there. If you have 
