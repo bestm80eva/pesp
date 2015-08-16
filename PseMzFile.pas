@@ -13,14 +13,9 @@ unit PseMzFile;
 interface
 
 uses
-  SysUtils, Classes, PseFile, PseSection,
-  PseExportTable, PseImportTable, PseCmn, PseMz;
+  SysUtils, Classes, PseFile, PseSection, PseCmn, PseMz;
 
 type
-  TPseMzPage = record
-    Data: array[0..254] of Byte;
-  end;
-
   {
     DOS EXE files.
 
@@ -48,6 +43,8 @@ type
 
     function GetEntryPoint: UInt64; override;
     function GetFirstAddr: UInt64; override;
+
+    function GetSizeOfImage: Cardinal;
   end;
 
 implementation
@@ -58,6 +55,7 @@ uses
 function TPseMzFile.LoadFromStream(Stream: TStream): boolean;
 var
   i: integer;
+  sec: TPseSection;
 begin
   Result := inherited;
   if Result then begin
@@ -76,10 +74,15 @@ begin
         Exit(false);
     end;
 
-  end;
+    sec := FSections.New;
+    sec.Name := ChangeFileExt(ExtractFileName(FFilename), '');
+    sec.Address := FExeHeader.HeaderParagraphs * 16;
+    sec.FileOffset := FExeHeader.HeaderParagraphs * 16;
+    FStream.Seek(sec.FileOffset, soFromBeginning);
+		sec.Size := GetSizeOfImage;
 
-  FBitness := pseb16;
-  Result := true;
+    FBitness := pseb16;
+  end;
 end;
 
 function TPseMzFile.GetEntryPoint: UInt64;
@@ -91,6 +94,16 @@ end;
 function TPseMzFile.GetFirstAddr: UInt64;
 begin
   Result := 0;
+end;
+
+function TPseMzFile.GetSizeOfImage: Cardinal;
+var
+	header_size: Cardinal;
+begin
+	header_size := FExeHeader.HeaderParagraphs * 16;
+  Result := FExeHeader.BlocksInFile * 512 - header_size;
+  if Result + header_size < 512 then
+  	Result := 512 - header_size;
 end;
 
 procedure TPseMzFile.SaveSectionToStream(const ASection: integer; Stream: TStream);

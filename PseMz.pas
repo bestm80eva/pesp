@@ -10,7 +10,7 @@ interface
 
 type
   // MZ Header
-  TExeHeader = record
+  TExeHeader = packed record
     Signature: Word;            // This is the "magic number" of an EXE file. The
                                 // first byte of the file is 0x4d and the second is 0x5a.
 
