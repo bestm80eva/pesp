@@ -80,6 +80,7 @@ begin
     sec.FileOffset := FExeHeader.HeaderParagraphs * 16;
     FStream.Seek(sec.FileOffset, soFromBeginning);
 		sec.Size := GetSizeOfImage;
+    sec.Attribs := [saCode, saExecuteable, saData, saReadable, saWriteable];
 
     FBitness := pseb16;
   end;

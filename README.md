@@ -4,7 +4,7 @@ A collection of classes and functions to parse executable files for the Pascal
 language, namely for Free Pascal and Delphi.
 
 These are my findings trying to parse these files. Not everything is implemented yet
-(e.g. Resource parsing, MZ files), and I may be wrong here and there. If you have 
+(e.g. Resource parsing), and I may be wrong here and there. If you have 
 improvements let me know.
 
 ## License
@@ -13,7 +13,8 @@ BSD
 
 ## Supported files
 
-- 16 Bit DOS EXE aka NE
+- 16 Bit DOS EXE aka MZ
+- 16 Bit Windows EXE aka NE
 - 32 Bit PE
 - 64 Bit PE
 - 32 Bit ELF
