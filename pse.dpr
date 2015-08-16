@@ -71,7 +71,10 @@ begin
     WriteLn(Format('%d Imports', [PseFile.ImportTable.Count]));
     for i := 0 to PseFile.ImportTable.Count - 1 do begin
       imp := PseFile.ImportTable[i];
-      WriteLn(Format('%s:', [imp.DllName]));
+      Write(Format('%s', [imp.DllName]));
+      if imp.DelayLoad then
+        Write(' (delay load)');
+      WriteLn(':');
       for j := 0 to imp.Count - 1 do begin
         api := imp[j];
         WriteLn(Format('  %s: Hint %d, Address: 0x%x', [api.Name, api.Hint, api.Address]));
@@ -81,7 +84,7 @@ begin
     WriteLn(Format('%d Exports', [PseFile.ExportTable.Count]));
     for i := 0 to PseFile.ExportTable.Count - 1 do begin
       expo := PseFile.ExportTable[i];
-      WriteLn(Format('  %s: Orinal %d, Address: 0x%x', [expo.Name, expo.Ordinal, expo.Address]));
+      WriteLn(Format('  %s: Ordinal %d, Address: 0x%x', [expo.Name, expo.Ordinal, expo.Address]));
     end;
 
     if PseFile is TPsePeFile then begin

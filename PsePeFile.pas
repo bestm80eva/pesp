@@ -391,7 +391,6 @@ begin
       FStream.Seek(offset, soFromBeginning);
       if Is64 then begin
         FStream.Read(thunk64, SizeOf(TImageThunkData64));
-        FStream.Read(thunk64, SizeOf(TImageThunkData64));
         while thunk64._Function <> 0 do begin
           imp_api := import_obj.New;
           stream_pos := FStream.Position;
