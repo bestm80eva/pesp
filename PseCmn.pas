@@ -46,6 +46,8 @@ type
 
 const
   BITNESS_STRING: array[TPseBitness] of string = ('Unknown', '16', '32', '64');
+  ARCH_STRING: array[TPseArch] of string = ('ARM', 'ARM64', 'MIPS', 'x86', 'PowerPC',
+    'SPARC', 'SystemZ', 'XCore', 'Unknown');
 
 implementation
 

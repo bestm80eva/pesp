@@ -60,6 +60,7 @@ begin
   end;
   try
     WriteLn(PseFile.GetFriendlyName);
+    WriteLn(Format('Architecture: %s', [ARCH_STRING[PseFile.GetArch]]));
     WriteLn(Format('Entry point 0x%x', [PseFile.GetEntryPoint]));
 
     WriteLn(Format('%d Sections', [PseFile.Sections.Count]));
