@@ -29,6 +29,8 @@ type
     FFileHeader64: TElf64Header;
     FSizeOfImage: Cardinal;
     function GetMachine: Elf32_Half;
+    procedure ReadExports;
+    procedure ReadImports;
     procedure ReadSections;
     function ReadSectionString(const Index: integer): string;
     procedure UpdateSectionNames;
@@ -95,6 +97,8 @@ begin
     end;
 
     ReadSections;
+    ReadImports;
+    ReadExports;
   end;
 end;
 
@@ -138,6 +142,16 @@ begin
     sec := FSections[i];
     sec.Name := ReadSectionString(sec.NameIndex);
   end;
+end;
+
+procedure TPseElfFile.ReadExports;
+begin
+
+end;
+
+procedure TPseElfFile.ReadImports;
+begin
+
 end;
 
 function TPseElfFile.ReadSectionString(const Index: integer): string;

@@ -103,11 +103,13 @@ type
   Elf32_Off = Cardinal;
   Elf32_Sword = Integer;
   Elf32_Word = Cardinal;
+  Elf32_Section = Word;
 
   Elf64_Addr = UInt64;
   Elf64_Off = UInt64;
   Elf64_Word = Cardinal;
   Elf64_Xword = UInt64;
+  Elf64_Section = Word;
 
   // 32 Bit file header
   Elf32_Ehdr = record
@@ -188,6 +190,31 @@ type
     p_memsz: Elf32_Word;
     p_flags: Elf32_Word;
     p_align: Elf32_Word;
+  end;
+
+  TElf32_Sym = record
+		st_name: Elf32_Word;           // An index into the object file's symbol string table,
+    														   // which holds the character representations of the symbol names.
+                                   // If the value is nonzero, it represents a string table index
+                                   // that gives the symbol name. Otherwise, the symbol table entry has no name.
+    st_value: Elf32_Addr;          // The value of the associated symbol. Depending on the context,
+    														   // this can be an absolute value, an address, and so forth.
+    st_size: Elf32_Word;           // Many symbols have associated sizes. For example, a data object's size is
+    														   // the number of bytes contained in the object. This member holds 0 if the
+                                   // symbol has no size or an unknown size.
+    st_info: Byte;
+    st_other: Byte;
+    st_shndx: Elf32_Section;       // Every symbol table entry is defined in relation to some section.
+    														   // This member holds the relevant section header table index
+  end;
+
+  TElf64_Sym = record
+  	st_name: Elf64_Word;
+    st_info: Byte;
+    st_other: Byte;
+    st_shndx: Elf64_Section;
+    st_value: Elf64_Addr;
+    st_size: Elf64_Xword;
   end;
 
 function GetSecCharacteristicsString(const Characteristics: Cardinal): string;
