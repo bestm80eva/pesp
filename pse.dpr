@@ -112,14 +112,14 @@ begin
       if res then begin
         WriteLn(Format('Virtual memory (Base = 0x%x, Size = %u) has %d segments:', [mem.MemBase, mem.Size, mem.Count]));
         for i := 0 to mem.Count - 1 do begin
-        	seg := mem.Items[i];
+          seg := mem.Items[i];
           seg_flags := '';
           if (pmfExecute in seg.Flags) then
-						seg_flags := seg_flags + ' Execute';
+            seg_flags := seg_flags + ' Execute';
           if (pmfRead in seg.Flags) then
-						seg_flags := seg_flags + ' Read';
+            seg_flags := seg_flags + ' Read';
           if (pmfWrite in seg.Flags) then
-						seg_flags := seg_flags + ' Write';
+            seg_flags := seg_flags + ' Write';
           seg_flags := Trim(seg_flags);
           WriteLn(Format('  %s: Base = 0x%x, Size = %u, Flags = %s', [seg.Name, seg.Base, seg.Size, seg_flags]));
         end;
