@@ -24,7 +24,10 @@ uses
   PseRawFile in 'PseRawFile.pas',
   PseSection in 'PseSection.pas',
   PseCmn in 'PseCmn.pas',
-  PseMz in 'PseMz.pas';
+  PseMz in 'PseMz.pas',
+  PseImgLoader in 'PseImgLoader.pas',
+  PsePeLoader in 'PsePeLoader.pas',
+  PseVirtMem in 'PseVirtMem.pas';
 
 var
   filename: string;
@@ -34,6 +37,12 @@ var
   imp: TPseImport;
   api: TPseApi;
   expo: TPseExport;
+  mem: TPseVirtMem;
+  mem_base: UInt64;
+  mem_initsize, mem_maxsize: UInt64;
+  res: boolean;
+  seg: TPseMemSegment;
+  seg_flags: string;
 begin
   // Register files we need
   TPseFile.RegisterFile(TPsePeFile);
@@ -88,9 +97,37 @@ begin
       WriteLn(Format('  %s: Ordinal %d, Address: 0x%x', [expo.Name, expo.Ordinal, expo.Address]));
     end;
 
+    mem_base := 0;
+    mem_initsize := PseFile.GetInitHeapSize;
+    mem_maxsize := PseFile.GetMaxHeapSize;
     if PseFile is TPsePeFile then begin
-
+      mem_base := TPsePeFile(PseFile).GetImageBase;
     end else if PseFile is TPseElfFile then begin
+    end;
+
+    // load
+    mem := TPseVirtMem.Create(mem_base, mem_initsize, mem_maxsize);
+    try
+      res := TPseImgLoader.LoadFile(PseFile, mem);
+      if res then begin
+        WriteLn(Format('Virtual memory (Base = 0x%x, Size = %u) has %d segments:', [mem.MemBase, mem.Size, mem.Count]));
+        for i := 0 to mem.Count - 1 do begin
+        	seg := mem.Items[i];
+          seg_flags := '';
+          if (pmfExecute in seg.Flags) then
+						seg_flags := seg_flags + ' Execute';
+          if (pmfRead in seg.Flags) then
+						seg_flags := seg_flags + ' Read';
+          if (pmfWrite in seg.Flags) then
+						seg_flags := seg_flags + ' Write';
+          seg_flags := Trim(seg_flags);
+          WriteLn(Format('  %s: Base = 0x%x, Size = %u, Flags = %s', [seg.Name, seg.Base, seg.Size, seg_flags]));
+        end;
+      end else begin
+        WriteLn('Error loading file into virtual memory');
+      end;
+    finally
+      mem.Free;
     end;
 
   finally

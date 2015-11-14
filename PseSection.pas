@@ -125,7 +125,7 @@ end;
 procedure TPseSection.SaveToStream(Stream: TStream);
 begin
   if (FOwner.FOwner is TPseFile) then begin
-    (FOwner.FOwner as TPseFileAccess).SaveSectionToStream(FIndex, Stream);
+    (FOwner.FOwner as TPseFile).SaveSectionToStream(FIndex, Stream);
   end;
 end;
 

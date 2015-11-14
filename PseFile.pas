@@ -41,7 +41,6 @@ type
     FReadDebugInfo: boolean;
     function GetHasDebugInfo: boolean;
     function GetIs64: boolean;
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); virtual; abstract;
   public
     constructor Create; virtual;
     destructor Destroy; override;
@@ -55,6 +54,7 @@ type
     function GetMaxStackSize: UInt64; virtual;
     function GetInitHeapSize: UInt64; virtual;
     function GetMaxHeapSize: UInt64; virtual;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); virtual; abstract;
 
     function GetFriendlyName: string; virtual;
 

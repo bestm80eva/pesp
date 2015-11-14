@@ -62,7 +62,7 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_RunParams>test\elf\elf64exe</Debugger_RunParams>
+        <Debugger_RunParams>test\pe\inttest.exe</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -85,6 +85,9 @@
         <DCCReference Include="PseSection.pas"/>
         <DCCReference Include="PseCmn.pas"/>
         <DCCReference Include="PseMz.pas"/>
+        <DCCReference Include="PseImgLoader.pas"/>
+        <DCCReference Include="PsePeLoader.pas"/>
+        <DCCReference Include="PseVirtMem.pas"/>
         <BuildConfiguration Include="Debug">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>

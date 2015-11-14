@@ -34,9 +34,9 @@ type
     FExeHeader: TExeHeader;
     FRelocs: array of TExeReloc;
   protected
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     function LoadFromStream(Stream: TStream): boolean; override;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
     function GetFriendlyName: string; override;
     function GetArch: TPseArch; override;
     function GetMode: TPseMode; override;

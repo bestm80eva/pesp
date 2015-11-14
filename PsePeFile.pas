@@ -41,11 +41,11 @@ type
     procedure ReadDebugDirectory;
     function RVAToOffset(const RVA: UInt64): UInt64;
   protected
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     constructor Create; override;
     destructor Destroy; override;
     function LoadFromStream(Stream: TStream): boolean; override;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
     function GetEntryPoint: UInt64; override;
     function GetArch: TPseArch; override;
     function GetMode: TPseMode; override;

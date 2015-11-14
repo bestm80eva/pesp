@@ -19,9 +19,9 @@ type
   TPseRawFile = class(TPseFile)
   private
   protected
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     function LoadFromStream(Stream: TStream): boolean; override;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
     function GetEntryPoint: UInt64; override;
     function GetFirstAddr: UInt64; override;
     function GetArch: TPseArch; override;

@@ -35,11 +35,11 @@ type
     function ReadSectionString(const Index: integer): string;
     procedure UpdateSectionNames;
   protected
-    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
   public
     constructor Create; override;
     destructor Destroy; override;
     function LoadFromStream(Stream: TStream): boolean; override;
+    procedure SaveSectionToStream(const ASection: integer; Stream: TStream); override;
     function GetArch: TPseArch; override;
     function GetMode: TPseMode; override;
     function GetFirstAddr: UInt64; override;
