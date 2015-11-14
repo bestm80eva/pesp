@@ -6,7 +6,7 @@ uses
   Classes, PseImgLoader, PseSection, PseVirtMem;
 
 type
-  TPeLoader = class(TPseImgLoader)
+  TPsePeLoader = class(TPseImgLoader)
   private
     procedure LoadSection(AMem: TPseVirtMem; ASection: TPseSection);
   public
@@ -18,16 +18,16 @@ implementation
 uses
   PsePeFile;
 
-procedure TPeLoader.Load(AMem: TPseVirtMem);
+procedure TPsePeLoader.Load(AMem: TPseVirtMem);
 var
   i: integer;
 begin
-    for i := 0 to FFile.Sections.Count - 1 do begin
-      LoadSection(AMem, FFile.Sections[i]);
-    end;
+  for i := 0 to FFile.Sections.Count - 1 do begin
+    LoadSection(AMem, FFile.Sections[i]);
+  end;
 end;
 
-procedure TPeLoader.LoadSection(AMem: TPseVirtMem; ASection: TPseSection);
+procedure TPsePeLoader.LoadSection(AMem: TPseVirtMem; ASection: TPseSection);
 var
   seg: TPseMemSegment;
   flags: TPseMemFlags;

@@ -27,11 +27,14 @@ type
   private
     FFileHeader32: TElf32Header;
     FFileHeader64: TElf64Header;
+    FProgramHeader32: array of TElf32ProgramHeader;
+    FProgramHeader64: array of TElf64ProgramHeader;
     FSizeOfImage: Cardinal;
     function GetMachine: Elf32_Half;
     procedure ReadExports;
     procedure ReadImports;
     procedure ReadSections;
+    procedure ReadProgramHeaders;
     function ReadSectionString(const Index: integer): string;
     procedure UpdateSectionNames;
   protected
@@ -45,6 +48,7 @@ type
     function GetFirstAddr: UInt64; override;
     function GetEntryPoint: UInt64; override;
 
+    function GetImageBase: UInt64;
     function GetSizeOfImage: Cardinal;
 
     function GetFriendlyName: string; override;
@@ -96,6 +100,7 @@ begin
       FStream.Read(FFileHeader64, SizeOf(TElf64Header));
     end;
 
+    ReadProgramHeaders;
     ReadSections;
     ReadImports;
     ReadExports;
@@ -177,7 +182,7 @@ begin
   end;
 
   cur_pos := FStream.Position;
-   FStream.Read(name, 256);
+  FStream.Read(name, 256);
   FStream.Position := cur_pos;
   Result := string(StrPas(PAnsiChar(@name)));
 end;
@@ -262,6 +267,27 @@ begin
   UpdateSectionNames;
 end;
 
+procedure TPseElfFile.ReadProgramHeaders;
+var
+  i, n: integer;
+begin
+  if IS64 then begin
+    FStream.Seek(FFileHeader64.e_phoff, soFromBeginning);
+    n := FFileHeader64.e_phnum;
+    SetLength(FProgramHeader64, n);
+    for i := 0 to n - 1 do begin
+      FStream.Read(FProgramHeader64[i], FFileHeader64.e_phentsize);
+    end;
+  end else begin
+    FStream.Seek(FFileHeader32.e_phoff, soFromBeginning);
+    n := FFileHeader32.e_phnum;
+    SetLength(FProgramHeader32, n);
+    for i := 0 to n - 1 do begin
+      FStream.Read(FProgramHeader32[i], FFileHeader32.e_phentsize);
+    end;
+  end;
+end;
+
 procedure TPseElfFile.SaveSectionToStream(const ASection: integer; Stream: TStream);
 var
   sec: TPseSection;
@@ -272,6 +298,24 @@ begin
   FStream.Seek(o, soFromBeginning);
   s := Min(Int64(sec.Size), Int64(FStream.Size - o));
   Stream.CopyFrom(FStream, s);
+end;
+
+function TPseElfFile.GetImageBase: UInt64;
+var
+  i: integer;
+begin
+  Result := $FFFFFFFFFFFFFFFF;
+  if Is64 then begin
+    for i := Low(FProgramHeader64) to High(FProgramHeader64) do begin
+      if (FProgramHeader64[i].p_type = PT_LOAD) and (Result > FProgramHeader64[i].p_vaddr) then
+        Result := FProgramHeader64[i].p_vaddr;
+    end;
+  end else begin
+    for i := Low(FProgramHeader32) to High(FProgramHeader32) do begin
+      if  (FProgramHeader32[i].p_type = PT_LOAD) and (Result > FProgramHeader32[i].p_vaddr) then
+        Result := FProgramHeader32[i].p_vaddr;
+    end;
+  end;
 end;
 
 function TPseElfFile.GetSizeOfImage: Cardinal;

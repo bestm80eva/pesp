@@ -20,12 +20,14 @@ type
 implementation
 
 uses
-  PsePeFile, PsePeLoader;
+  PsePeFile, PsePeLoader, PseElfLoader, PseElfFile;
 
 class function TPseImgLoader.GetInstance(AFile: TPseFile): TPseImgLoader;
 begin
   if AFile is TPsePeFile then
-    Result := TPeLoader.Create(AFile)
+    Result := TPsePeLoader.Create(AFile)
+  else if AFile is TPseElfFile then
+    Result := TPseElfLoader.Create(AFile)
   else
     Result := nil;
 end;

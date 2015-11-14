@@ -29,7 +29,8 @@ uses
   PseMz in 'PseMz.pas',
   PseImgLoader in 'PseImgLoader.pas',
   PsePeLoader in 'PsePeLoader.pas',
-  PseVirtMem in 'PseVirtMem.pas';
+  PseVirtMem in 'PseVirtMem.pas',
+  PseElfLoader in 'PseElfLoader.pas';
 
 var
   filename: string;
@@ -105,6 +106,7 @@ begin
     if PseFile is TPsePeFile then begin
       mem_base := TPsePeFile(PseFile).GetImageBase;
     end else if PseFile is TPseElfFile then begin
+      mem_base := TPseElfFile(PseFile).GetImageBase;
     end;
 
     // load

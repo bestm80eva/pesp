@@ -181,7 +181,7 @@ type
   end;
   PElf64SectionHeader = ^TElf64SectionHeader;
 
-  TElf32ProgramHeader = record
+  Elf32_Phdr  = record
     p_type: Elf32_Word;
     p_offset: Elf32_Off;
     p_vaddr: Elf32_Addr;
@@ -191,25 +191,50 @@ type
     p_flags: Elf32_Word;
     p_align: Elf32_Word;
   end;
+  TElf32ProgramHeader = Elf32_Phdr;
+  Elf64_Phdr  = record
+    p_type: Elf64_Word;
+    p_flags: Elf64_Word;
+    p_offset: Elf64_Off;
+    p_vaddr: Elf64_Addr;
+    p_paddr: Elf64_Addr;
+    p_filesz: Elf64_Xword;
+    p_memsz: Elf64_Xword;
+    p_align: Elf64_Xword;
+  end;
+  TElf64ProgramHeader = Elf64_Phdr;
 
+const
+  // p_type
+  PT_NULL    = 0;
+  PT_LOAD    = 1;
+  PT_DYNAMIC = 2;
+  PT_INTERP  = 3;
+  PT_NOTE    = 4;
+  PT_SHLIB   = 5;
+  PT_PHDR    = 6;
+  PT_LOPROC  = $70000000;
+  PT_HIPROC  = $7fffffff;
+
+type
   TElf32_Sym = record
-		st_name: Elf32_Word;           // An index into the object file's symbol string table,
-    														   // which holds the character representations of the symbol names.
+    st_name: Elf32_Word;           // An index into the object file's symbol string table,
+                                   // which holds the character representations of the symbol names.
                                    // If the value is nonzero, it represents a string table index
                                    // that gives the symbol name. Otherwise, the symbol table entry has no name.
     st_value: Elf32_Addr;          // The value of the associated symbol. Depending on the context,
-    														   // this can be an absolute value, an address, and so forth.
+                                   // this can be an absolute value, an address, and so forth.
     st_size: Elf32_Word;           // Many symbols have associated sizes. For example, a data object's size is
-    														   // the number of bytes contained in the object. This member holds 0 if the
+                                   // the number of bytes contained in the object. This member holds 0 if the
                                    // symbol has no size or an unknown size.
     st_info: Byte;
     st_other: Byte;
     st_shndx: Elf32_Section;       // Every symbol table entry is defined in relation to some section.
-    														   // This member holds the relevant section header table index
+                                   // This member holds the relevant section header table index
   end;
 
   TElf64_Sym = record
-  	st_name: Elf64_Word;
+    st_name: Elf64_Word;
     st_info: Byte;
     st_other: Byte;
     st_shndx: Elf64_Section;
