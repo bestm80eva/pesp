@@ -304,7 +304,7 @@ function TPseElfFile.GetImageBase: UInt64;
 var
   i: integer;
 begin
-  Result := $FFFFFFFFFFFFFFFF;
+  Result := $FFFFFFFFFFFFFFF;
   if Is64 then begin
     for i := Low(FProgramHeader64) to High(FProgramHeader64) do begin
       if (FProgramHeader64[i].p_type = PT_LOAD) and (Result > FProgramHeader64[i].p_vaddr) then
