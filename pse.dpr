@@ -32,10 +32,15 @@ uses
   PseVirtMem in 'PseVirtMem.pas',
   PseElfLoader in 'PseElfLoader.pas';
 
+function isprint(const AC: AnsiChar): boolean;
+begin
+  Result := (AC >= ' ') and (AC <= '~') and (Ord(AC) <> $7F);
+end;
+
 var
   filename: string;
   PseFile: TPseFile;
-  i, j: integer;
+  i, j, c, k: integer;
   sec: TPseSection;
   imp: TPseImport;
   api: TPseApi;
@@ -46,6 +51,9 @@ var
   res: boolean;
   seg: TPseMemSegment;
   seg_flags: string;
+  buff: array[0..15] of Byte;
+  addr: UInt64;
+  print_mem: boolean;
 begin
   // Register files we need
   TPseFile.RegisterFile(TPsePeFile);
@@ -56,7 +64,7 @@ begin
   TPseFile.RegisterFile(TPseRawFile);
 
   if ParamCount = 0 then begin
-    WriteLn('pse <filename>');
+    WriteLn('pse <filename> [-mem]');
     Halt(1);
   end;
   filename := ParamStr(1);
@@ -64,6 +72,7 @@ begin
     WriteLn(Format('File %s not found', [filename]));
     Halt(1);
   end;
+  print_mem := (ParamCount > 1) and (ParamStr(2) = '-mem');
 
   PseFile := TPseFile.GetInstance(filename, false);
   if not Assigned(PseFile) then begin
@@ -126,6 +135,32 @@ begin
             seg_flags := seg_flags + ' Write';
           seg_flags := Trim(seg_flags);
           WriteLn(Format('  %s: Base = 0x%x, Size = %u, Flags = %s', [seg.Name, seg.Base, seg.Size, seg_flags]));
+          // Print content of segment
+          if print_mem then begin
+            WriteLn('  Contents of segment:');
+            j := 0;
+            repeat
+              addr := seg.Base + (j * SizeOf(buff));
+              try
+              c := seg.Read(addr, buff, SizeOf(buff));
+              except
+                Break;
+              end;
+              Write(Format('    0x%.16x: ', [addr]));
+              for k := Low(buff) to High(buff) do begin
+                Write(Format('%.2x ', [buff[k]]));
+              end;
+              Write('  ');
+              for k := Low(buff) to High(buff) do begin
+                if isprint(AnsiChar(buff[k])) then
+                  Write(Format('%s', [AnsiChar(buff[k])]))
+                else
+                  Write('.');
+              end;
+              Inc(j);
+              WriteLn;
+            until c <> SizeOf(buff);
+          end;
         end;
       end else begin
         WriteLn('Error loading file into virtual memory');

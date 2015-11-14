@@ -72,6 +72,9 @@ type
 
 implementation
 
+uses
+  Math;
+
 { TPseMemSegment }
 
 constructor TPseMemSegment.Create(AOwner: TPseVirtMem; const AName: string; const ABase, ASize: UInt64;
@@ -95,9 +98,14 @@ end;
 function TPseMemSegment.Read(const AAddr: UInt64; var Buffer; Count: Longint): Longint;
 var
   index: integer;
+  c: UInt64;
 begin
   if not (pmfRead in FFlags) then
     raise Exception.Create('Segment is not readable');
+  if AAddr < FBase then
+    raise Exception.CreateFmt('Access violation read at 0x%.16x', [AAddr]);
+  if AAddr + Count > FBase + FSize then
+    raise Exception.CreateFmt('Access violation read at 0x%.16x', [AAddr]);
   index := AAddr - (FOwner.FMemBase);
   if (index < 0) then
     raise Exception.CreateFmt('Access violation read at 0x%.16x', [AAddr]);
