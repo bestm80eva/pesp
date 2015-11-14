@@ -62,7 +62,7 @@
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
-        <Debugger_RunParams>test\elf\elf64exe</Debugger_RunParams>
+        <Debugger_RunParams>c:\Tools\hcalc\hcalc.exe</Debugger_RunParams>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">

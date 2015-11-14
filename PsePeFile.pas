@@ -459,7 +459,7 @@ var
   import_obj: TPseImport;
   imp_api: TPseApi;
   api_names: Cardinal;
-  api_addresses: Cardinal;
+  api_addresses: UInt64;
   thunk64: TImageThunkData64;
   thunk32: TImageThunkData32;
   stream_pos: Int64;
