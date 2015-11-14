@@ -216,7 +216,12 @@ end;
 { Sort segments by address }
 function Segments_SortProc(i1, i2: Pointer): Integer;
 begin
-  Result := TPseMemSegment(i1).Base - TPseMemSegment(i2).Base;
+  if TPseMemSegment(i1).Base > TPseMemSegment(i2).Base then
+    Result := 1
+  else if TPseMemSegment(i1).Base < TPseMemSegment(i2).Base then
+    Result := -1
+  else
+    Result := 0;
 end;
 
 procedure TPseVirtMem.Sort;
