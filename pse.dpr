@@ -1,6 +1,8 @@
 program pse;
 
-{$APPTYPE CONSOLE}
+{$ifdef MSWINDOWS}
+  {$APPTYPE CONSOLE}
+{$endif}
 {$IFDEF FPC}
   {$MODE Delphi}
 {$ENDIF}

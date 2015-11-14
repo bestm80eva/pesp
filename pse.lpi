@@ -59,7 +59,7 @@
     <RunParams>
       <local>
         <FormatVersion Value="1"/>
-        <CommandLineParams Value="test\pe\64.exe"/>
+        <CommandLineParams Value="test\elf\elf64exe"/>
       </local>
     </RunParams>
     <Units Count="14">
