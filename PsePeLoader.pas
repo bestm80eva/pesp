@@ -40,17 +40,19 @@ begin
     Include(flags, pmfWrite);
   if (saExecuteable in ASection.Attribs) then
     Include(flags, pmfExecute);
-  seg := AMem.CreateSegment(ASection.Name, ASection.Address,
-    ASection.Size, [pmfWrite]);
-  ms := TMemoryStream.Create;
-  try
-    ASection.SaveToStream(ms);
-    ms.Position := 0;
-    seg.Write(ASection.Address, ms.Memory^, ASection.Size);
-  finally
-    ms.Free;
+  if flags <> [] then begin
+    seg := AMem.CreateSegment(ASection.Name, ASection.Address,
+      ASection.Size, [pmfWrite]);
+    ms := TMemoryStream.Create;
+    try
+      ASection.SaveToStream(ms);
+      ms.Position := 0;
+      seg.Write(ASection.Address, ms.Memory^, ASection.Size);
+    finally
+      ms.Free;
+    end;
+    seg.Flags := flags;
   end;
-  seg.Flags := flags;
 end;
 
 end.
