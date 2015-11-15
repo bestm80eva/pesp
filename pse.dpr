@@ -139,6 +139,7 @@ begin
           if print_mem then begin
             WriteLn('  Contents of segment:');
             j := 0;
+            c := 0;
             repeat
               addr := seg.Base + (j * SizeOf(buff));
               try

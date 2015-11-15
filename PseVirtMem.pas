@@ -30,6 +30,8 @@ type
     function Read(const AAddr: UInt64; var Buffer; Count: Longint): Longint; dynamic;
     function Write(const AAddr: UInt64; const Buffer; Count: Longint): Longint; dynamic;
 
+    procedure SaveToStream(Stream: TStream);
+
     property Name: string read FName;
     property Base: UInt64 read FBase;
     property Size: UInt64 read FSize;
@@ -93,6 +95,16 @@ end;
 destructor TPseMemSegment.Destroy;
 begin
   inherited;
+end;
+
+procedure TPseMemSegment.SaveToStream(Stream: TStream);
+var
+  o, s: Int64;
+begin
+  o := FBase;
+  FOwner.Stream.Seek(o, soFromBeginning);
+  s := Min(Int64(FSize), Int64(FOwner.Stream.Size - o));
+  Stream.CopyFrom(FOwner.Stream, s);
 end;
 
 function TPseMemSegment.Read(const AAddr: UInt64; var Buffer; Count: Longint): Longint;
