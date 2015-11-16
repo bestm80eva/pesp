@@ -1,5 +1,9 @@
 unit PseImgLoader;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses

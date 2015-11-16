@@ -6,6 +6,10 @@
 
 unit PseCmn;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 const
