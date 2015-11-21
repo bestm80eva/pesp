@@ -110,7 +110,6 @@ end;
 function TPseMemSegment.Read(const AAddr: UInt64; var Buffer; Count: Longint): Longint;
 var
   index: integer;
-  c: UInt64;
 begin
   if not (pmfRead in FFlags) then
     raise Exception.Create('Segment is not readable');

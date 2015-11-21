@@ -81,7 +81,6 @@ type
     _lfanew: LongInt;                  { File address of new exe header   }
   end;
   TImageDosHeader = _IMAGE_DOS_HEADER;
-  {$EXTERNALSYM IMAGE_DOS_HEADER}
   IMAGE_DOS_HEADER = _IMAGE_DOS_HEADER;
 
 const

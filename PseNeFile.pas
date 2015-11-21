@@ -13,112 +13,9 @@ unit PseNeFile;
 interface
 
 uses
-  SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz;
-
-const
-  NOAUTODATA     = $0000;
-  SINGLEDATA     = $0001;
-  MULTIPLEDATA   = $0002;
-  ERRORS         = $2000;
-  LIBRARY_MODULE = $8000;
-
-  EXETYPE_UNKNOWN = $0;
-  EXETYPE_OS2     = $1;
-  EXETYPE_WINDOWS = $2;
-  EXETYPE_DOS40   = $3;
-  EXETYPE_WIN386  = $4;
-  EXETYPE_BOSS    = $5;
-
-  SEGMENTGLAG_TYPE_MASK = $0007;
-  SEGMENTGLAG_CODE      = $0000;
-  SEGMENTGLAG_DATA      = $0001;
-  SEGMENTGLAG_MOVEABLE  = $0010;
-  SEGMENTGLAG_PRELOAD   = $0040;
-  SEGMENTGLAG_RELOCINFO = $0100;
-  SEGMENTGLAG_DISCARD   = $F000;
-
-  RESTABLEFLAG_MOVEABLE = $0010;
-  RESTABLEFLAG_PURE     = $0020;
-  RESTABLEFLAG_PRELOAD  = $0040;
+  SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz, PseNe;
 
 type
-  _SEGMENTED_EXE_HEADER = record
-    Signature: Word;
-    MajorLinkerVersion: Byte;
-    MinorLinkerVersion: Byte;
-    EntryTableFileOffset: Word;
-    EntryTableSize: Word;
-    Checksum: Cardinal;
-    Flags: Word;
-    SegmentNumber: Word;
-    HeapInitialSize: Word;
-    StackInitialSize: Word;
-    SegmentNumberOffsetCSIP: Cardinal;
-    SegmentNumberOffsetSSSP: Cardinal;
-    SegmentNumberOfElements: Word;
-    ModuleReferenceNumberEntries: Word;
-    NonResidentTableSize: Word;
-    SegmentTableFileOffset: Word;
-    ResourceTableFileOffset: Word;
-    ResidentNameTableFileOffset: Word;
-    ModulReferenceTableFileOffset: Word;
-    ImportNamesTableFileOffset: Word;
-    NonResidentNameTableFileOffset: Cardinal;
-    NumberOfMoveableEntries: Word;
-    SectorAlignmentShiftCount: Word;
-    NumberOfResourceEntries: Word;
-    ExecuteableType: Byte;
-    OS2EXEFlags: Byte;
-    RetThunkOffset: Word;
-    SegRefThunksOff: Word;
-    MinCodeSwap: Word;
-    ExpectedWinVer: array[0..1] of Byte;                                        //Expected windows version (minor first)
-  end;
-  TSegmentedExeHeader = _SEGMENTED_EXE_HEADER;
-
-  _EXE_SEGMENTHEADER = record
-    Offset: Word;
-    Size: Word;
-    Flags: Word;
-    MinAllocSize: Word;
-  end;
-  TExeSegmentHeader = _EXE_SEGMENTHEADER;
-
-  _RESIDENT_NAME_TABLE_ENTRY = record
-    Size: Byte;
-    Name: Byte;
-    Ordinal: Word;
-  end;
-  TResidentNameTableEntry = _RESIDENT_NAME_TABLE_ENTRY;
-
-  _IMPORTED_NAME_TABLE_ENTRY = record
-    Size: Byte;
-    Name: Byte;
-  end;
-  TImportedNameTableEntry = _IMPORTED_NAME_TABLE_ENTRY;
-
-  _RESOURCE_BLOCK = record
-    TypeId: Word;
-    Count: Word;
-    Reserved: Cardinal;
-    Table: record
-      FileOffset: Word;
-      Length: Word;
-      Flag: Word;
-      ResourceId: Word;
-      Reserved: Cardinal;
-    end;
-  end;
-  TResourceBlock = _RESOURCE_BLOCK;
-
-  _RESOURCE_TABLE_ENTRY = record
-    AlignShift: Word;
-    Block: TResourceBlock;
-    SizeOfTypeName: Byte;
-    Text: Byte;
-  end;
-  TResourceTableEntry = _RESOURCE_TABLE_ENTRY;
-
   {
     Windows NE files.
 
@@ -138,6 +35,7 @@ type
   TPseNeFile = class(TPseFile)
   private
     FDosHeader: TImageDosHeader;
+    FOs2Header: TImageOs2Header;
     FExeHeader: TSegmentedExeHeader;
     FExeHeaderOffset: Word;
     procedure ReadSections;
@@ -156,6 +54,7 @@ type
     function GetFirstAddr: UInt64; override;
 
     property DosHeader: TImageDosHeader read FDosHeader;
+    property Os2Header: TImageOs2Header read FOs2Header;
     property ExeHeader: TSegmentedExeHeader read FExeHeader;
   end;
 
@@ -167,9 +66,6 @@ implementation
 
 uses
   Math;
-
-const
-  EXE_HEADER_NE = ((Ord('E') shl 8) + Ord('N'));
 
 function GetSecCharacteristicsString(const AFlags: Word): string;
 begin
@@ -241,6 +137,9 @@ begin
       Exit(false);
     if FExeHeader.Signature <> EXE_HEADER_NE then
       Exit(false);
+
+    FStream.Seek(FDosHeader._lfanew, soFromBeginning);
+    FStream.Read(FOs2Header, SizeOf(FOs2Header));
 
     FBitness := pseb16;
 

@@ -30,7 +30,8 @@ uses
   PseImgLoader in 'PseImgLoader.pas',
   PsePeLoader in 'PsePeLoader.pas',
   PseVirtMem in 'PseVirtMem.pas',
-  PseElfLoader in 'PseElfLoader.pas';
+  PseElfLoader in 'PseElfLoader.pas',
+  PseNe in 'PseNe.pas';
 
 function isprint(const AC: AnsiChar): boolean;
 begin
