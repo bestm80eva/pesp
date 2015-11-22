@@ -13,7 +13,8 @@ unit PseNeFile;
 interface
 
 uses
-  SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz, PseNe;
+  SysUtils, Classes, PseFile, PseSection, PseImportTable, PseCmn, PseMz, PseNe,
+  PseResource;
 
 type
   {
@@ -140,6 +141,8 @@ begin
 
     FStream.Seek(FDosHeader._lfanew, soFromBeginning);
     FStream.Read(FOs2Header, SizeOf(FOs2Header));
+    if (FOs2Header.ne_magic <> IMAGE_OS2_SIGNATURE) then
+    	Exit(false);
 
     FBitness := pseb16;
 
@@ -153,18 +156,34 @@ end;
 
 procedure TPseNeFile.ReadResources;
 var
-  entry: TResourceTableEntry;
+  entry: TResourceBlock;
+  res_table: TResouceTable;
+  i: integer;
+  offset, ro: integer;
+  res: TPseResource;
 begin
   // RESOURCE TABLE
-  FStream.Seek(FExeHeader.ResourceTableFileOffset + FExeHeaderOffset, soFromBeginning);
-  if (FStream.Read(entry, SizeOf(TResourceTableEntry)) <> SizeOf(TResourceTableEntry)) then
-    Exit;
-  while entry.Block.TypeId <> 0 do begin
-    if (FStream.Read(entry, SizeOf(TResourceTableEntry)) <> SizeOf(TResourceTableEntry)) then
+  offset := FExeHeader.ResourceTableFileOffset + FDosHeader._lfanew + 2;
+
+  while (true) do begin
+	  FStream.Seek(offset, soFromBeginning);
+    if (FStream.Read(entry, SizeOf(TResourceBlock)) <> SizeOf(TResourceBlock)) then
       Break;
+    if entry.TypeId = 0 then
+    	Break;
 
+    for i := 0 to entry.Count - 1 do begin
+      ro := offset + SizeOf(TResourceBlock) + (SizeOf(TResouceTable) * i);
+      FStream.Seek(ro, soFromBeginning);
+      FStream.Read(res_table, SizeOf(res_table));
+      res := FResources.New;
+      res.ResType := entry.TypeId;
+      res.ResId := res_table.ResourceId;
+      res.Size := res_table.Length;
+    end;
+
+    offset := FStream.Position;
   end;
-
 end;
 
 procedure TPseNeFile.ReadExports;

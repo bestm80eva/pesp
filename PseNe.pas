@@ -169,15 +169,16 @@ type
     TypeId: Word;
     Count: Word;
     Reserved: Cardinal;
-    Table: record
-      FileOffset: Word;
-      Length: Word;
-      Flag: Word;
-      ResourceId: Word;
-      Reserved: Cardinal;
-    end;
   end;
   TResourceBlock = _RESOURCE_BLOCK;
+  _RESOURCE_TABLE = record
+    FileOffset: Word;
+    Length: Word;
+    Flag: Word;
+    ResourceId: Word;
+    Reserved: Cardinal;
+  end;
+  TResouceTable = _RESOURCE_TABLE;
 
   _RESOURCE_TABLE_ENTRY = record
     AlignShift: Word;

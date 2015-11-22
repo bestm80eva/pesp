@@ -14,7 +14,7 @@ interface
 
 uses
   SysUtils, Classes, PseSection, PseExportTable, PseImportTable, PseDebugInfo,
-  PseCmn,
+  PseCmn, PseResource,
 {$ifdef FPC}
   fgl
 {$else}
@@ -36,6 +36,7 @@ type
     FSections: TPseSectionList;
     FExports: TPseExportTable;
     FImports: TPseImportTable;
+    FResources: TPseResourceList;
     FDebugInfo: TPseDebugInfo;
     FBitness: TPseBitness;
     FReadDebugInfo: boolean;
@@ -62,6 +63,7 @@ type
     property Sections: TPseSectionList read FSections;
     property ExportTable: TPseExportTable read FExports;
     property ImportTable: TPseImportTable read FImports;
+    property Resources: TPseResourceList read FResources;
     property Stream: TStream read FStream;
     property Is64: boolean read GetIs64;
     property Bitness: TPseBitness read FBitness default psebUnknown;
@@ -158,6 +160,7 @@ begin
   FSections := TPseSectionList.Create(Self);
   FExports := TPseExportTable.Create;
   FImports := TPseImportTable.Create(Self);
+  FResources := TPseResourceList.Create(Self);
   FDebugInfo := TPseDebugInfo.Create;
   FBitness := psebUnknown;
 end;
@@ -168,6 +171,7 @@ begin
   FSections.Free;
   FExports.Free;
   FImports.Free;
+  FResources.Free;
   FStream.Free;
   inherited;
 end;

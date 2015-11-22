@@ -31,7 +31,8 @@ uses
   PsePeLoader in 'PsePeLoader.pas',
   PseVirtMem in 'PseVirtMem.pas',
   PseElfLoader in 'PseElfLoader.pas',
-  PseNe in 'PseNe.pas';
+  PseNe in 'PseNe.pas',
+  PseResource in 'PseResource.pas';
 
 function isprint(const AC: AnsiChar): boolean;
 begin
@@ -55,6 +56,7 @@ var
   buff: array[0..15] of Byte;
   addr: UInt64;
   print_mem: boolean;
+  res_item: TPseResource;
 begin
   // Register files we need
   TPseFile.RegisterFile(TPsePeFile);
@@ -88,13 +90,13 @@ begin
     WriteLn(Format('%d Sections', [PseFile.Sections.Count]));
     for i := 0 to PseFile.Sections.Count - 1 do begin
       sec := PseFile.Sections[i];
-      WriteLn(Format('%s: Address 0x%x, Size %d', [sec.Name, sec.Address, sec.Size]));
+      WriteLn(Format('  %s: Address 0x%x, Size %d', [sec.Name, sec.Address, sec.Size]));
     end;
 
     WriteLn(Format('%d Imports', [PseFile.ImportTable.Count]));
     for i := 0 to PseFile.ImportTable.Count - 1 do begin
       imp := PseFile.ImportTable[i];
-      Write(Format('%s', [imp.DllName]));
+      Write(Format('  %s', [imp.DllName]));
       if imp.DelayLoad then
         Write(' (delay load)');
       WriteLn(':');
@@ -108,6 +110,13 @@ begin
     for i := 0 to PseFile.ExportTable.Count - 1 do begin
       expo := PseFile.ExportTable[i];
       WriteLn(Format('  %s: Ordinal %d, Address: 0x%x', [expo.Name, expo.Ordinal, expo.Address]));
+    end;
+
+    WriteLn(Format('%d Resources', [PseFile.Resources.Count]));
+    for i := 0 to PseFile.Resources.Count - 1 do begin
+      res_item := PseFile.Resources[i];
+      WriteLn(Format('  ID: %d, Type: %d (%s), Size: %u', [res_item.ResId,
+      	res_item.ResType,res_item.GetWinTypeString, res_item.Size]));
     end;
 
     mem_base := 0;
