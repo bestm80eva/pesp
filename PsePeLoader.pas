@@ -15,9 +15,6 @@ type
 
 implementation
 
-uses
-  PsePeFile;
-
 procedure TPsePeLoader.Load(AMem: TPseVirtMem);
 var
   i: integer;

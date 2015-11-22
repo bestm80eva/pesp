@@ -73,9 +73,6 @@ implementation
 uses
   PseFile;
 
-type
-  TPseFileAccess = class(TPseFile);
-
 procedure TPseSectionList.Clear;
 var
   i: integer;
