@@ -11,7 +11,7 @@ interface
 type
   // OS/2 .EXE header
   PImageOs2Header = ^TImageOs2Header;
-  _IMAGE_OS2_HEADER = record 
+  _IMAGE_OS2_HEADER = record
     ne_magic: Word;         // Magic number
     ne_ver: Byte;           // Version number
     ne_rev: Byte;           // Revision number
@@ -41,11 +41,11 @@ type
     ne_pretthunks: Word;    // offset to return thunks
     ne_psegrefbytes: Word;  // offset to segment ref. bytes
     ne_swaparea: Word;      // Minimum code swap area size
-    ne_expver: Word;        // Expected Windows version number
+    ne_expver: Word;        // Expected Windows version number (minor first)
   end;
   TImageOs2Header = _IMAGE_OS2_HEADER;
   IMAGE_OS2_HEADER = _IMAGE_OS2_HEADER;
-  
+
 const
   NOAUTODATA     = $0000;
   SINGLEDATA     = $0001;
@@ -73,40 +73,6 @@ const
   RESTABLEFLAG_PRELOAD  = $0040;
 
 type
-  _SEGMENTED_EXE_HEADER = record
-    Signature: Word;
-    MajorLinkerVersion: Byte;
-    MinorLinkerVersion: Byte;
-    EntryTableFileOffset: Word;
-    EntryTableSize: Word;
-    Checksum: Cardinal;
-    Flags: Word;
-    SegmentNumber: Word;
-    HeapInitialSize: Word;
-    StackInitialSize: Word;
-    SegmentNumberOffsetCSIP: Cardinal;
-    SegmentNumberOffsetSSSP: Cardinal;
-    SegmentNumberOfElements: Word;
-    ModuleReferenceNumberEntries: Word;
-    NonResidentTableSize: Word;
-    SegmentTableFileOffset: Word;
-    ResourceTableFileOffset: Word;
-    ResidentNameTableFileOffset: Word;
-    ModulReferenceTableFileOffset: Word;
-    ImportNamesTableFileOffset: Word;
-    NonResidentNameTableFileOffset: Cardinal;
-    NumberOfMoveableEntries: Word;
-    SectorAlignmentShiftCount: Word;
-    NumberOfResourceEntries: Word;
-    ExecuteableType: Byte;
-    OS2EXEFlags: Byte;
-    RetThunkOffset: Word;
-    SegRefThunksOff: Word;
-    MinCodeSwap: Word;
-    ExpectedWinVer: array[0..1] of Byte;                                        //Expected windows version (minor first)
-  end;
-  TSegmentedExeHeader = _SEGMENTED_EXE_HEADER;
-
   _EXE_SEGMENTHEADER = record
     Offset: Word;
     Size: Word;
@@ -114,21 +80,21 @@ type
     MinAllocSize: Word;
   end;
   TExeSegmentHeader = _EXE_SEGMENTHEADER;
-  
+
 const
   RELOCTYPE_SOURCE_MASK = $0f;
   RELOCTYPE_LOBYTE      = $00;
   RELOCTYPE_SEGMENT     = $02;
   RELOCTYPE_FAR_ADDR    = $03;
   RELOCTYPE_OFFSET      = $05;
-  
+
   RELOCFLAG_TARGET_MASK   = $03;
   RELOCFLAG_INTERNALREF   = $00;
   RELOCFLAG_IMPORTORDINAL = $01;
   RELOCFLAG_IMPORTNAME    = $02;
   RELOCFLAG_OSFIXUP       = $03;
   RELOCFLAG_ADDITIVE      = $04;
-  
+
 type
   _RELOC_TABLE = record
     // RELOCTYPE_*
@@ -186,13 +152,12 @@ type
     SizeOfTypeName: Byte;
     Text: Byte;
   end;
-  TResourceTableEntry = _RESOURCE_TABLE_ENTRY;  
-  
+  TResourceTableEntry = _RESOURCE_TABLE_ENTRY;
+
 const
-  EXE_HEADER_NE          = ((Ord('E') shl 8) + Ord('N'));
   IMAGE_OS2_SIGNATURE    = ((Ord('E') shl 8) + Ord('N'));
   IMAGE_OS2_SIGNATURE_LE = ((Ord('E') shl 8) + Ord('L'));
-  
+
 implementation
 
 end.

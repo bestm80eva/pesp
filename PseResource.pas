@@ -22,7 +22,7 @@ uses
   ;
 
 type
-	TPseResource = class;
+  TPseResource = class;
 
   TPseResourceList = class({$ifdef FPC}TFPGList{$else}TList{$endif}<TPseResource>)
   private
@@ -36,23 +36,27 @@ type
 
   TPseResource = class
   private
-  	FOwner: TPseResourceList;
+    FOwner: TPseResourceList;
     FResId: Integer;
     FResType: Integer;
+    // File offset
+    FOffset: Cardinal;
     FSize: Cardinal;
-	public
+  public
     constructor Create(AOwner: TPseResourceList);
 
     function GetWinType: Word;
     function GetWinTypeString: string;
+    procedure SaveToStream(Stream: TStream);
 
     property ResId: Integer read FResId write FResId;
     property ResType: integer read FResType write FResType;
+    property Offset: Cardinal read FOffset write FOffset;
     property Size: Cardinal read FSize write FSize;
   end;
 
 const
-	// Predefined Windows Resource Types
+  // Predefined Windows Resource Types
   WIN_RT_NONE         = 0;
   WIN_RT_CURSOR       = 1;
   WIN_RT_BITMAP       = 2;
@@ -77,13 +81,19 @@ const
   WIN_RT_MANIFEST     = 24;
 
   WIN_TYPE_STRING: array[WIN_RT_NONE..WIN_RT_MANIFEST] of string = ('No type',
-  	'RT_CURSOR', 'RT_BITMAP', 'RT_ICON', 'RT_MENU', 'RT_DIALOG', 'RT_STRING',
+    'RT_CURSOR', 'RT_BITMAP', 'RT_ICON', 'RT_MENU', 'RT_DIALOG', 'RT_STRING',
     'RT_FONTDIR', 'RT_FONT', 'RT_ACCELERATOR', 'RT_RCDATA', 'RT_MESSAGETABLE', 'RT_GROUP_CURSOR', '(13 ?)', 'RT_GROUP_ICON', '(15 ?)',
     'RT_VERSION', 'RT_DLGINCLUDE', '(18 ?)', 'RT_PLUGPLAY', 'RT_VXD', 'RT_ANICURSOR',
     'RT_ANIICON', 'RT_HTML', 'RT_MANIFEST'
   );
 
 implementation
+
+uses
+  PseFile, Math;
+
+type
+  TPseFileAccess = class(TPseFile);
 
 { TPseResource }
 
@@ -100,13 +110,25 @@ end;
 
 function TPseResource.GetWinTypeString: string;
 var
-	wt: Word;
+  wt: Word;
 begin
-	wt := GetWinType;
+  wt := GetWinType;
   if (wt <= WIN_RT_MANIFEST) then
-		Result := WIN_TYPE_STRING[wt]
+    Result := WIN_TYPE_STRING[wt]
   else
-  	Result := 'Custom';
+    Result := 'Custom';
+end;
+
+procedure TPseResource.SaveToStream(Stream: TStream);
+var
+  s: TStream;
+  o, sz: Int64;
+begin
+  s := TPseFileAccess(FOwner.FOwner).FStream;
+  o := FOffset;
+  sz := Min(Int64(FSize), Int64(s.Size - o));
+  s.Seek(o, soFromBeginning);
+  Stream.CopyFrom(s, sz);
 end;
 
 { TPseResourceList }

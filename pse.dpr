@@ -57,6 +57,7 @@ var
   addr: UInt64;
   print_mem: boolean;
   res_item: TPseResource;
+  res_stream: TMemoryStream;
 begin
   // Register files we need
   TPseFile.RegisterFile(TPsePeFile);
@@ -113,10 +114,18 @@ begin
     end;
 
     WriteLn(Format('%d Resources', [PseFile.Resources.Count]));
-    for i := 0 to PseFile.Resources.Count - 1 do begin
-      res_item := PseFile.Resources[i];
-      WriteLn(Format('  ID: %d, Type: %d (%s), Size: %u', [res_item.ResId,
-      	res_item.ResType,res_item.GetWinTypeString, res_item.Size]));
+    res_stream := TMemoryStream.Create;
+    try
+      for i := 0 to PseFile.Resources.Count - 1 do begin
+        res_item := PseFile.Resources[i];
+        WriteLn(Format('  ID: %d, Type: %d (%s), Offset: %u, Size: %u', [res_item.ResId,
+          res_item.ResType, res_item.GetWinTypeString, res_item.Offset, res_item.Size]));
+        res_stream.Clear;
+        res_item.SaveToStream(res_stream);
+        res_stream.SaveToFile(Format('test/res_%s_%d.dat', [res_item.GetWinTypeString, res_item.ResId]));
+      end;
+    finally
+      res_stream.Free;
     end;
 
     mem_base := 0;

@@ -37,8 +37,8 @@ type
   private
     FDosHeader: TImageDosHeader;
     FOs2Header: TImageOs2Header;
-    FExeHeader: TSegmentedExeHeader;
-    FExeHeaderOffset: Word;
+//    FExeHeader: TSegmentedExeHeader;
+//    FExeHeaderOffset: Word;
     procedure ReadSections;
     procedure ReadImports;
     procedure ReadExports;
@@ -56,7 +56,7 @@ type
 
     property DosHeader: TImageDosHeader read FDosHeader;
     property Os2Header: TImageOs2Header read FOs2Header;
-    property ExeHeader: TSegmentedExeHeader read FExeHeader;
+//    property ExeHeader: TSegmentedExeHeader read FExeHeader;
   end;
 
 function GetFlagsString(const AFlags: Word): string;
@@ -130,19 +130,11 @@ begin
     if FDosHeader.e_magic <> DOS_HEADER_MZ then
       Exit(false);
 
-    // Offset of EXE header
-    FStream.Seek($3c, soFromBeginning);
-    FStream.Read(FExeHeaderOffset, SizeOf(Word));
-    FStream.Seek(FExeHeaderOffset, soFromBeginning);
-    if (FStream.Read(FExeHeader, SizeOf(TSegmentedExeHeader)) <> SizeOf(TSegmentedExeHeader)) then
-      Exit(false);
-    if FExeHeader.Signature <> EXE_HEADER_NE then
-      Exit(false);
-
     FStream.Seek(FDosHeader._lfanew, soFromBeginning);
-    FStream.Read(FOs2Header, SizeOf(FOs2Header));
+    if FStream.Read(FOs2Header, SizeOf(FOs2Header)) <> SizeOf(FOs2Header) then
+      Exit(false);
     if (FOs2Header.ne_magic <> IMAGE_OS2_SIGNATURE) then
-    	Exit(false);
+      Exit(false);
 
     FBitness := pseb16;
 
@@ -159,30 +151,29 @@ var
   entry: TResourceBlock;
   res_table: TResouceTable;
   i: integer;
-  offset, ro: integer;
+  offset: Integer;
   res: TPseResource;
+  res_align: Word;
 begin
   // RESOURCE TABLE
-  offset := FExeHeader.ResourceTableFileOffset + FDosHeader._lfanew + 2;
+  offset := FOs2Header.ne_rsrctab + FDosHeader._lfanew;
+  FStream.Seek(offset, soFromBeginning);
+  FStream.Read(res_align, 2);
 
   while (true) do begin
-	  FStream.Seek(offset, soFromBeginning);
     if (FStream.Read(entry, SizeOf(TResourceBlock)) <> SizeOf(TResourceBlock)) then
       Break;
     if entry.TypeId = 0 then
-    	Break;
+      Break;
 
     for i := 0 to entry.Count - 1 do begin
-      ro := offset + SizeOf(TResourceBlock) + (SizeOf(TResouceTable) * i);
-      FStream.Seek(ro, soFromBeginning);
       FStream.Read(res_table, SizeOf(res_table));
       res := FResources.New;
       res.ResType := entry.TypeId;
       res.ResId := res_table.ResourceId;
-      res.Size := res_table.Length;
+      res.Offset := res_table.FileOffset shl res_align;
+      res.Size := res_table.Length shl res_align;
     end;
-
-    offset := FStream.Position;
   end;
 end;
 
@@ -204,12 +195,12 @@ var
   imp_api: TPseApi;
 begin
   FImports.Clear;
-  FStream.Seek(FExeHeader.ModulReferenceTableFileOffset + FExeHeaderOffset, soFromBeginning);
+  FStream.Seek(FOs2Header.ne_modtab + FDosHeader._lfanew, soFromBeginning);
   offsets := TList.Create;
   try
     // Each entry contains an offset for the module-name string within the imported-
     // names table; each entry is 2 bytes long.
-    for i := 0 to FExeHeader.ModuleReferenceNumberEntries - 1 do begin
+    for i := 0 to FOs2Header.ne_cmod - 1 do begin
       // Offset within Imported Names Table to referenced module name
       // string.
       FStream.Read(offset, SizeOf(Word));
@@ -221,16 +212,16 @@ begin
       // by the executable file. Each entry is composed of a 1-byte field that
       // contains the length of the string, followed by any number of characters.
       // The strings are not null-terminated and are case sensitive.
-      FStream.Seek(FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i]), soFromBeginning);
+      FStream.Seek(FOs2Header.ne_imptab + FDosHeader._lfanew + Word(offsets[i]), soFromBeginning);
       FStream.Read(string_len, SizeOf(Byte));
       FillChar(name, MAXBYTE, 0);
       FStream.Read(name, string_len);
       import_obj := FImports.New;
       import_obj.DllName := string(StrPas(PAnsiChar(@name)));
       if i < offsets.Count - 1 then
-        next_offset := FExeHeader.ImportNamesTableFileOffset + FExeHeaderOffset + Word(offsets[i+1])
+        next_offset := FOs2Header.ne_imptab + FDosHeader._lfanew + Word(offsets[i+1])
       else
-        next_offset := FExeHeader.EntryTableFileOffset + FExeHeaderOffset;
+        next_offset := FOs2Header.ne_enttab + FDosHeader._lfanew;
 
       while FStream.Position < next_offset do begin
         FStream.Read(string_len, SizeOf(Byte));
@@ -254,8 +245,8 @@ var
   attribs: TSectionAttribs;
 begin
   FSections.Clear;
-  FStream.Seek(FExeHeader.SegmentTableFileOffset + FExeHeaderOffset, soFromBeginning);
-  for i := 0 to FExeHeader.SegmentNumber - 1 do begin
+  FStream.Seek(FOs2Header.ne_segtab + FDosHeader._lfanew, soFromBeginning);
+  for i := 0 to FOs2Header.ne_autodata - 1 do begin
     if (FStream.Read(seg_header, SizeOf(TExeSegmentHeader)) <> SizeOf(TExeSegmentHeader)) then
       Break;
     attribs := [];
@@ -284,7 +275,7 @@ end;
 
 function TPseNeFile.GetEntryPoint: UInt64;
 begin
-  Result := FExeHeader.SegmentNumberOffsetCSIP mod 65536;
+  Result := FOs2Header.ne_csip mod 65536;
 end;
 
 function TPseNeFile.GetFirstAddr: UInt64;
