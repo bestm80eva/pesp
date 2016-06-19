@@ -41,7 +41,7 @@ type
     ne_pretthunks: Word;    // offset to return thunks
     ne_psegrefbytes: Word;  // offset to segment ref. bytes
     ne_swaparea: Word;      // Minimum code swap area size
-    ne_expver: Word;        // Expected Windows version number (minor first)
+    ne_expver: array[0..1] of Byte; //Expected windows version (minor first)
   end;
   TImageOs2Header = _IMAGE_OS2_HEADER;
   IMAGE_OS2_HEADER = _IMAGE_OS2_HEADER;

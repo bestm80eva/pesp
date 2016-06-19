@@ -37,8 +37,6 @@ type
   private
     FDosHeader: TImageDosHeader;
     FOs2Header: TImageOs2Header;
-//    FExeHeader: TSegmentedExeHeader;
-//    FExeHeaderOffset: Word;
     procedure ReadSections;
     procedure ReadImports;
     procedure ReadExports;
@@ -56,7 +54,6 @@ type
 
     property DosHeader: TImageDosHeader read FDosHeader;
     property Os2Header: TImageOs2Header read FOs2Header;
-//    property ExeHeader: TSegmentedExeHeader read FExeHeader;
   end;
 
 function GetFlagsString(const AFlags: Word): string;

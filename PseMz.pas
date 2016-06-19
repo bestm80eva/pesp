@@ -57,7 +57,7 @@ type
     Segment: Word;
   end;
 
-  // NE Header
+  // DOS Header
   PImageDosHeader = ^TImageDosHeader;
   _IMAGE_DOS_HEADER = record           { DOS .EXE header                  }
     e_magic: Word;                     { Magic number                     }

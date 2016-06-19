@@ -32,6 +32,7 @@ type
     destructor Destroy; override;
     procedure Clear;
     function New: TPseResource;
+    function GetById(const AId: Integer): TPseResource;
   end;
 
   TPseResource = class
@@ -152,6 +153,19 @@ destructor TPseResourceList.Destroy;
 begin
   Clear;
   inherited;
+end;
+
+function TPseResourceList.GetById(const AId: Integer): TPseResource;
+var
+  i: integer;
+begin
+  for i := 0 to Count - 1 do begin
+    if Items[i].FResId = AId then begin
+      Result := Items[i];
+      Exit;
+    end;
+  end;
+  Result := nil;
 end;
 
 function TPseResourceList.New: TPseResource;

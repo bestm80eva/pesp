@@ -79,7 +79,7 @@ begin
     sec.Address := FExeHeader.HeaderParagraphs * 16;
     sec.FileOffset := FExeHeader.HeaderParagraphs * 16;
     FStream.Seek(sec.FileOffset, soFromBeginning);
-		sec.Size := GetSizeOfImage;
+    sec.Size := GetSizeOfImage;
     sec.Attribs := [saCode, saExecuteable, saData, saReadable, saWriteable];
 
     FBitness := pseb16;
@@ -99,12 +99,12 @@ end;
 
 function TPseMzFile.GetSizeOfImage: Cardinal;
 var
-	header_size: Cardinal;
+  header_size: Cardinal;
 begin
-	header_size := FExeHeader.HeaderParagraphs * 16;
+  header_size := FExeHeader.HeaderParagraphs * 16;
   Result := FExeHeader.BlocksInFile * 512 - header_size;
   if Result + header_size < 512 then
-  	Result := 512 - header_size;
+    Result := 512 - header_size;
 end;
 
 procedure TPseMzFile.SaveSectionToStream(const ASection: integer; Stream: TStream);
